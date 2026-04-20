@@ -20,7 +20,7 @@ def create_app():
 
     from app.routes.home_routes import home
     from app.routes.auth_routes import auth
-    from app.routes.admin_routes import admins
+    from app.routes.admin_routes import admin
     from app.routes.chef_routes import chef
     from app.routes.shop_routes import shop
     
