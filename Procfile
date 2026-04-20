@@ -1,1 +1,1 @@
-web: python run.python
+web: gunicorn run.python
