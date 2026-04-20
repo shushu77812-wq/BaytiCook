@@ -210,3 +210,4 @@ def checkout():
         })
 
     return render_template("main/checkout.html", grouped_cart=grouped_cart)
+
