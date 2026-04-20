@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ kitchen.kitchen_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <style>
+        body { background: #f8f9fa; font-family: "Tahoma", sans-serif; }
+        .kitchen-card {
+            max-width: 900px; margin: 30px auto; background: #fff;
+            border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+        .kitchen-header {
+            display: flex; align-items: center; gap: 20px;
+        }
+        .kitchen-header img {
+            width: 120px; height: 120px; border-radius: 12px; object-fit: cover;
+            border: 2px solid #ddd;
+        }
+        .kitchen-info h2 { margin: 0; color: #343a40; }
+        .kitchen-info p { margin: 5px 0; }
+        .meals-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px; margin-top: 25px;
+        }
+        .meal-card {
+            background: #fafafa; border-radius: 8px; padding: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .meal-card img {
+            width: 100%; height: 150px; object-fit: cover; border-radius: 6px;
+        }
+        .meal-card h4 { margin: 10px 0 5px; }
+        .meal-card p { margin: 0; font-size: 14px; }
+        .btn-order {
+            margin-top: 10px; padding: 6px 12px; background: #28a745; color: #fff;
+            border-radius: 6px; text-decoration: none; display: inline-block;
+        }
+        .btn-order:hover { background: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="kitchen-card">
+    <div class="kitchen-header">
+        <img src="{{ url_for('static', filename='uploads/' ~ kitchen.kitchen_logo) }}" alt="شعار المطبخ">
+        <div class="kitchen-info">
+            <h2>{{ kitchen.kitchen_name }}</h2>
+            <p>👩‍🍳 الطاهية: {{ kitchen.user.name }}</p>
+            <p>📞 {{ kitchen.user.phone }}</p>
+            <p>📍 {{ kitchen.location }}</p>
+            <p>📝 {{ kitchen.description }}</p>
+            <p>الحالة: {% if kitchen.is_open %} ✅ مفتوح {% else %} ❌ مغلق {% endif %}</p>
+        </div>
+    </div>
+
+    <hr>
+    <h3>🍳 قائمة الأطباق</h3>
+    <div class="meals-grid">
+        {% for meal in meals %}
+        <div class="meal-card">
+            <img src="{{ url_for('static', filename='uploads/' ~ meal.images[0].image) }}" alt="صورة الطبق">
+            <h4>{{ meal.name }}</h4>
+            <p>{{ meal.description }}</p>
+            <p>💰 {{ meal.price }} ريال</p>
+     <form action="{{ url_for('shop.add_to_cart', id=meal.id) }}" method="POST">
+  <button type="submit" class="btn-order">اطلب الآن</button>
+</form>
+
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>

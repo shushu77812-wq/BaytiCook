@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <title>BaytiCook</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <style>
+    .nav-link {
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: 0.3s;
+    }
+
+    .nav-link:hover {
+      background: #ff6a00;
+      color: #fff;
+    }
+
+   .nav {
+  display: flex;
+  justify-content: flex-start; /* الروابط لليمين */
+  align-items: center;
+  padding: 10px 10px;
+  background: transparent; /* شفاف بدون خلفية */
+  box-shadow: none; /* نشيل الظل */
+  position: relative;
+}
+
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        background: #fff;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-links.show {
+        display: flex;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+    }
+
+    .menu-toggle {
+      display: none; 
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+    }
+  </style>
+
+<script src="/static/js/main.js"></script>
+
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <nav class="nav">
+   
+
+    <!-- زر القائمة للجوال -->
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+    <!-- روابط -->
+    <div id="menuLinks" class="nav-links">
+      <a href="/" class="nav-link"> الرئيسية</a>
+      <a href="/login" class="nav-link"> تسجيل الدخول</a>
+      <a href="/register" class="nav-link"> إنشاء حساب</a>
+      <a href="{{ url_for('shop.my_orders') }}" class="nav-link"> طلباتي</a>
+      <a href="{{ url_for('shop.cart') }}" class="nav-link">🛒 السلة</a>
+      <a href="{{ url_for('auth.logout') }}" class="nav-link"> تسجيل الخروج</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-overlay">
+    <h1 class="hero-title">BaytiCook</h1>
+  </div>
+  <p class="hero-subtitle">أكلات بيتية لذيذة من مطابخ منزلية قريبة منك</p>
+
+  <div class="search-card">
+    <div class="search-content">
+      <div class="search-logo">
+        <img src="/static/images/WhatsApp Image 2026-03-09 at 1.15.58 AM (1).jpeg" alt="Logo">
+      </div>
+
+      <form method="GET" action="/search" class="search-box">
+        <button type="submit">بحث</button>
+        <input type="text" name="q" placeholder="ابحث عن طبق أو مطبخ">
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED KITCHENS -->
+<section class="featured">
+  <h2>⭐ المطابخ المميزة</h2>
+  <div class="slider-container">
+    <button class="slider-btn left" onclick="scrollMeals(-1)">❮</button>
+    <div class="meals-slider">
+      {% for kitchen in featured_kitchens %}
+      <div class="meal-card">
+        <div class="image-container">
+          <img src="/static/uploads/{{ kitchen.kitchen_logo }}">
+          {% if not kitchen.is_open %}
+          <div class="closed-badge">مغلق</div>
+          {% endif %}
+        </div>
+        <h3>{{ kitchen.kitchen_name }}</h3>
+        <p>👩‍🍳 الطاهية: {{ kitchen.user.name }}</p>
+        <p>📞 {{ kitchen.user.phone }}</p>
+        <p>📍 {{ kitchen.location }}</p>
+        <p>📝 {{ kitchen.description }}</p>
+        {% if kitchen.is_open %}
+        <a href="{{ url_for('home.kitchen_page', id=kitchen.id) }}">
+          <button class="view-btn">عرض المطبخ</button>
+        </a>
+        {% else %}
+        <button class="closed-btn" disabled>مغلق</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <button class="slider-btn right" onclick="scrollMeals(1)">❯</button>
+  </div>
+</section>
+
+<h2>🍲 جميع الأكلات</h2>
+<div class="meals-grid" id="mealsGrid">
+  {% for meal in meals %}
+  <div class="meal-card">
+    <img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}">
+    <h3>{{ meal.name }}</h3>
+    <p class="price">{{ meal.price }} ريال</p>
+    <p>من مطبخ {{ meal.kitchen.kitchen_name }}</p>
+    <p class="description">{{ meal.description }}</p>
+    {% if meal.kitchen.is_open %}
+    <form action="/add-to-cart/{{ meal.id }}" method="POST">
+      <button type="submit" style="background:#ff6a00; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-top:5px;">
+        🛒 أضف للسلة
+      </button>
+    </form>
+    {% else %}
+    <button style="background:gray; color:white; border:none; padding:8px 12px; border-radius:6px; margin-top:5px;" disabled>
+      🔒 مغلق
+    </button>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<div class="load-more-box">
+  <button onclick="loadMoreMeals()" id="loadMoreBtn">تحميل المزيد</button>
+</div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

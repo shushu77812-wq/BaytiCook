@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>إنشاء حساب</title>
+    <link rel="stylesheet" href="/static/css/register.css">
+</head>
+<body>
+    <h2>إنشاء حساب</h2>
+
+    <form method="POST">
+
+        <label>الاسم</label>
+        <input type="text" name="name" required>
+        <br><br>
+
+        <label>البريد الإلكتروني (اختياري)</label>
+        <input type="email" name="email">
+        <br><br>
+
+        <label>رقم الهاتف</label>
+        <input type="text" name="phone" required>
+        <br><br>
+
+        <label>كلمة المرور</label>
+        <input type="password" name="password" required>
+        <br><br>
+
+        <label>نوع الحساب</label>
+        <select name="role">
+            <option value="customer">زبون</option>
+            <option value="chef">طاهية</option>
+        </select>
+        <br><br>
+
+        <button type="submit">تسجيل</button>
+    </form>
+</body>
+</html>

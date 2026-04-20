@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <title>الطلبات</title>
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+
+<body>
+
+<div class="admin-container">
+
+  <!-- القائمة -->
+  <div class="sidebar">
+    <h2>BaytiCook</h2>
+    <a href="/admin">لوحة التحكم</a>
+    <a href="/admin/chefs">الطاهيات</a>
+    <a href="/admin/meals">الأكلات</a>
+    <a href="/admin/orders">الطلبات</a>
+    <a href="/">الموقع</a>
+  </div>
+
+  <!-- المحتوى -->
+  <div class="content">
+    <h1>📦 إدارة الطلبات</h1>
+
+    <table class="orders-table">
+      <tr>
+        <th>رقم الطلب</th>
+        <th>المستخدم</th>
+        <th>الحالة</th>
+        <th>التحكم</th>
+      </tr>
+
+      {% for order in orders %}
+      <tr>
+        <td>#{{ order.id }}</td>
+        <td>{{ order.user_id }}</td>
+        <td>
+          {% if order.status == "pending" %}
+            <span class="status pending">قيد الانتظار</span>
+          {% elif order.status == "preparing" %}
+            <span class="status preparing">قيد التحضير</span>
+          {% elif order.status == "delivered" %}
+            <span class="status delivered">تم التوصيل</span>
+          {% else %}
+            <span class="status">{{ order.status }}</span>
+          {% endif %}
+        </td>
+        <td>
+          <a class="btn preparing" href="/admin/update-order/{{ order.id }}/preparing">تحضير</a>
+          <a class="btn delivered" href="/admin/update-order/{{ order.id }}/delivered">توصيل</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>

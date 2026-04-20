@@ -1,0 +1,20 @@
+<div class="meal-card">
+
+<img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}">
+
+<h3>{{ meal.name }}</h3>
+
+<p class="price">{{ meal.price }} ريال</p>
+
+<p>
+من مطبخ {{ meal.kitchen.kitchen_name }}
+</p>
+
+<a href="/meal/{{ meal.id }}">
+<button class="details-btn">عرض التفاصيل</button>
+</a>
+<form action="/add-to-cart/{{ meal.id }}" method="POST">
+<button type="submit">أضف للسلة</button>
+</form>
+
+</div>

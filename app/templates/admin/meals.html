@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<title>إدارة الأكلات</title>
+<link rel="stylesheet" href="/static/css/admin.css">
+</head>
+
+<body>
+
+<div class="admin-container">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>BaytiCook</h2>
+  <a href="/admin">لوحة التحكم</a>
+  <a href="/admin/chefs">الطاهيات</a>
+  <a href="/admin/meals">الأكلات</a>
+  <a href="/admin/orders">الطلبات</a>
+  <a href="/">الموقع</a>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <h1>🍲 إدارة الأكلات</h1>
+
+<table class="meals-table">
+    <tr>
+      <th>الصورة</th>
+      <th>اسم الأكلة</th>
+      <th>الوصف</th>
+      <th>السعر</th>
+      <th>المطبخ</th>
+      <th>الإجراء</th>
+    </tr>
+
+    {% for meal in meals %}
+    <tr>
+      <td><img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}" width="70"></td>
+      <td>{{ meal.name }}</td>
+      <td>{{ meal.description }}</td>
+      <td>{{ meal.price }} ريال</td>
+      <td>{{ meal.kitchen.kitchen_name }}</td>
+      <td>
+        <a href="/admin/edit-meal/{{ meal.id }}" class="btn edit">تعديل</a>
+        <a href="/admin/delete-meal/{{ meal.id }}" class="btn delete">حذف</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+</div>
+
+</body>
+</html>

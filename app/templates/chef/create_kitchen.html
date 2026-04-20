@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>إنشاء مطبخ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chefs.css') }}">
+  <style>
+    body { font-family: Tahoma, sans-serif; background:#f4f4f4; margin:0; }
+    .sidebar { width:220px; background:#333; color:#fff; padding:20px; float:right; height:100vh; }
+    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; }
+    .sidebar a:hover { background:#444; }
+    .content { margin-right:240px; padding:20px; }
+
+    .form-container {
+      background:#f9f9f9;
+      padding:20px;
+      border-radius:10px;
+      max-width:600px;
+      margin:auto;
+      box-shadow:0 3px 10px rgba(0,0,0,0.1);
+    }
+    .form-container input, 
+    .form-container textarea {
+      width:100%;
+      padding:10px;
+      margin:10px 0;
+      border:1px solid #ccc;
+      border-radius:6px;
+      font-size:16px;
+    }
+    .form-container .small-input {
+      font-size:14px;
+      color:#555;
+    }
+    .form-container button {
+      background:#27ae60;
+      color:white;
+      padding:10px 20px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:16px;
+    }
+    .form-container button:hover { background:#219150; }
+    textarea[name="description"] {
+      height:200px;
+      resize: vertical;
+      background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Ctext x='20' y='100' fill='%23aaa' font-size='20'%3Eاكتب وصف مطبخك هنا...%3C/text%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
+    }
+    .preview {
+      margin-top:10px;
+      text-align:center;
+    }
+    .preview img {
+      max-width:150px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <h2>👩‍🍳 لوحة الطاهية</h2>
+  <a href="/dashboard">الرئيسية</a>
+  <a href="/create_kitchen">إنشاء مطبخ</a>
+  <a href="/meals">الأطباق</a>
+  <a href="/orders">الطلبات</a>
+  <a href="/logout">تسجيل خروج</a>
+</div>
+
+<div class="content">
+  <h1>🏠 إنشاء مطبخ جديد</h1>
+
+  <div class="form-container">
+    <form method="POST" enctype="multipart/form-data">
+      <!-- اسم المطبخ -->
+      <label>اسم المطبخ</label>
+      <input type="text" name="kitchen_name" required>
+
+      <!-- شعار المطبخ (متوافق مع الموديل: kitchen_logo) -->
+      <label>شعار المطبخ</label>
+      <input type="file" name="kitchen_logo" accept="image/*" required onchange="previewLogo(event)">
+      <div class="preview" id="logoPreview"></div>
+
+      <!-- بيانات الطاهية -->
+      <label>اسم الطاهية</label>
+      <input type="text" name="chef_name" class="small-input">
+
+      <label>رقم الطاهية</label>
+      <input type="text" name="chef_phone" class="small-input">
+
+      <label>الحساب البنكي</label>
+      <input type="text" name="bank_account_number" class="small-input">
+
+      <!-- وصف المطبخ -->
+      <label>وصف المطبخ</label>
+      <textarea name="description"></textarea>
+
+      <button type="submit">إنشاء المطبخ</button>
+    </form>
+  </div>
+</div>
+
+{% if user.status == "approved" %}
+<div class="alert" style="background:#d4edda; padding:15px; border:1px solid #c3e6cb; margin:20px; border-radius:8px;">
+  ✅ تم الموافقة على حسابك من الأدمن، يمكنك الآن إنشاء مطبخ.
+</div>
+{% endif %}
+
+<script>
+function previewLogo(event) {
+  const preview = document.getElementById('logoPreview');
+  preview.innerHTML = '';
+  const file = event.target.files[0];
+  if (file) {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    preview.appendChild(img);
+  }
+}
+</script>
+
+</body>
+</html>

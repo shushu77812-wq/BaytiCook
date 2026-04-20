@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<title>نتائج البحث</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<h2 style="text-align:center;">
+نتائج البحث عن: {{ query }}
+</h2>
+
+<div class="meals-grid">
+
+{% for meal in meals %}
+
+<!-- نفس الكرت بالضبط -->
+<div class="meal-card">
+
+<img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}">
+
+<h3>{{ meal.name }}</h3>
+
+<p class="price">{{ meal.price }} ريال</p>
+
+<p class="kitchen">
+من مطبخ {{ meal.kitchen.kitchen_name }}
+</p>
+
+<p class="description">
+{{ meal.description }}
+</p>
+
+<a href="/add-to-cart/{{ meal.id }}" class="add-cart">
+🛒 أضف للسلة
+</a>
+</div>
+
+{% endfor %}
+
+</div>
+
+{% if not meals %}
+<p style="text-align:center;">لا توجد نتائج 😢</p>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+<title>لوحة التحكم</title>
+
+<link rel="stylesheet" href="/static/css/admin.css">
+
+</head>
+
+<body>
+
+<div class="admin-container">
+
+<div class="sidebar">
+
+<h2>BaytiCook</h2>
+
+<a href="/admin">لوحة التحكم</a>
+<a href="/admin/chefs">الطاهيات</a>
+<a href="/admin/meals">الأكلات</a>
+<a href="/admin/orders">الطلبات</a>
+<a href="/">الموقع</a>
+
+</div>
+
+<div class="content">
+
+<h1>لوحة تحكم الأدمن</h1>
+
+<div class="stats">
+
+<div class="card">
+<h3>الطاهيات</h3>
+<p>{{ chefs_count }}</p>
+</div>
+
+<div class="card">
+<h3>الأكلات</h3>
+<p>{{ meals_count }}</p>
+</div>
+
+<div class="card">
+<h3>الطلبات</h3>
+<p>{{ orders_count }}</p>
+</div>
+
+<div class="card">
+<h3>المستخدمين</h3>
+<p>{{ users_count }}</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

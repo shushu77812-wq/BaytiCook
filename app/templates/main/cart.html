@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<title>السلة</title>
+
+<style>
+body{
+    font-family:Tahoma;
+    background:#dbcfcf;
+    padding:20px;
+}
+h2{
+    text-align:center;
+}
+.cart-box{
+    max-width:700px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 3px 15px rgba(0,0,0,0.1);
+}
+.kitchen-title{
+    background:#f1f1f1;
+    padding:10px;
+    border-radius:8px;
+    margin-top:15px;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.kitchen-title img{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+}
+.item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid #eee;
+    padding:15px 0;
+}
+.item img{
+    width:80px;
+    height:80px;
+    border-radius:10px;
+    object-fit:cover;
+}
+.info{
+    flex:1;
+    margin:0 15px;
+}
+.actions a{
+    margin:0 5px;
+    text-decoration:none;
+    font-size:20px;
+}
+.total{
+    text-align:center;
+    font-size:22px;
+    margin-top:20px;
+    font-weight:bold;
+}
+.checkout{
+    display:block;
+    width:100%;
+    padding:12px;
+    background:#27ae60;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:15px;
+    font-size:16px;
+}
+.back{
+    display:block;
+    text-align:center;
+    margin-top:15px;
+    text-decoration:none;
+    color:#3498db;
+}
+.empty{
+    text-align:center;
+    color:gray;
+    margin-top:50px;
+}
+.subtotal{
+    text-align:right;
+    font-weight:bold;
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🛒 السلة</h2>
+
+<div class="cart-box">
+
+{% if grouped_cart %}
+
+    {% for kitchen_id, items in grouped_cart.items() %}
+
+        <!-- 🔥 اسم المطبخ + شعار + الطاهية -->
+        <div class="kitchen-title">
+            {% if items[0].meal.kitchen.kitchen_logo %}
+                <img src="/static/uploads/{{ items[0].meal.kitchen.kitchen_logo }}">
+            {% else %}
+                <img src="/static/uploads/default.png">
+            {% endif %}
+            🍳 {{ items[0].meal.kitchen.kitchen_name }}  
+            👩‍🍳 {{ items[0].meal.kitchen.user.name }}  
+            📞 {{ items[0].meal.kitchen.user.phone }}
+        </div>
+
+        {% for item in items %}
+        <div class="item">
+            {% if item.meal.images %}
+                <img src="/static/uploads/{{ item.meal.images[0].image }}">
+            {% else %}
+                <img src="/static/uploads/default.png">
+            {% endif %}
+
+            <div class="info">
+                <h3>{{ item.meal.name }}</h3>
+                <p>الكمية: {{ item.quantity }}</p>
+                <p>الإجمالي: {{ item.subtotal }} ريال</p>
+            </div>
+
+            <div class="actions">
+                <a href="/update/{{ item.meal.id }}/plus">➕</a>
+                <a href="/update/{{ item.meal.id }}/minus">➖</a>
+                <a href="/remove/{{ item.meal.id }}">❌</a>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- ✅ إجمالي جزئي لكل مطبخ -->
+        <div class="subtotal">
+            إجمالي مطبخ {{ items[0].meal.kitchen.kitchen_name }}:
+            {{ items|sum(attribute='subtotal') }} ريال
+        </div>
+
+    {% endfor %}
+
+    <!-- ✅ الإجمالي الكلي -->
+    <div class="total">
+        الإجمالي الكلي: {{ total }} ريال
+    </div>
+
+    <form method="POST" action="/checkout">
+        <button type="submit" class="checkout">
+            تأكيد الطلب
+        </button>
+    </form>
+
+    <a href="/" class="back">⬅ الرجوع للمطابخ</a>
+
+{% else %}
+    <div class="empty">
+        <h3>😢 السلة فارغة</h3>
+        <p>أضف منتجات أولاً</p>
+        <a href="/" class="back">⬅ الرجوع</a>
+    </div>
+{% endif %}
+
+</div>
+
+</body>
+</html>

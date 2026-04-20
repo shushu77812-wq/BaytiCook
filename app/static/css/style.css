@@ -1,0 +1,220 @@
+/* إعدادات عامة */
+:root {
+    --primary-color: #2ab09c; /* اللون الأخضر الموجود في زر البحث */
+    --accent-color: #ff6a00;  /* اللون البرتقالي للأزرار */
+    --text-dark: #333;
+    --white: #b0a1a1;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ddc9c9c3;
+    color: var(--text-dark);
+}
+
+/* الهيدر - التنقل */
+.header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 20px 0;
+}
+
+.nav {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0 50px;
+    gap: 30px;
+}
+
+.nav a {
+    text-decoration: none;
+    color: #444;
+    font-weight: bold;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+}
+
+.nav a:hover {
+    color: var(--primary-color);
+}
+
+/* قسم الهيرو - الخلفية */
+.hero {
+    height: 100vh;
+    background: url('/static/images/hero_bg.jpeg') no-repeat center center/cover; /* ضع مسار صورتك هنا */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    color: #444;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+
+.hero-subtitle {
+    font-size: 1.8rem;
+    color: #555;
+    margin-bottom: 40px;
+}
+/* الكرت الأبيض الكبير */
+.search-card {
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(10px);
+    padding: 15px 20px; /* قللت البادينج شوي عشان ما يكون ضخم */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: inline-block;
+    width: 85%; /* خليته أعرض شوي عشان يمتد مثل الصورة */
+    max-width: 900px;
+}
+
+/* الحاوية الداخلية */
+.search-content {
+    display: flex;
+    flex-direction: row-reverse; /* هذا السحر اللي بينقل اللوجو لليسار في نظام الـ RTL */
+    align-items: center;
+    justify-content: space-between; /* يخلي البحث في طرف واللوجو في طرف */
+    gap: 10px;
+}
+
+/* تنسيق اللوجو */
+.search-logo img {
+    height: 120px; /* غير الرقم هذا (60 أو 70 أو 80) لين يعجبك الحجم */
+    width: auto;
+    display: block;
+    /* إضافة حدود بسيطة إذا حبيت اللوجو يبرز */
+    filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.1)); 
+}
+
+/* صندوق البحث */
+.search-box {
+    display: flex;
+    background: white;
+    border: 1px solid #eee; /* حدود أخف */
+    border-radius: 50px;
+    padding: 5px;
+    flex-grow: 1; /* يخلي البحث يأخذ المساحة المتبقية */
+    max-width: 800px; /* كبرت العرض الأقصى للبحث */
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    padding: 12px 20px;
+    outline: none;
+    font-size: 1.1rem;
+    text-align: right;
+}
+
+.search-box button {
+    background-color: #2ab09c;
+    color: white;
+    border: none;
+    padding: 10px 35px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+}
+.search-box button:hover {
+    background-color: #228b7b;
+}
+
+/* تصميم البطاقات (المطابخ والأكلات) */
+.featured, .all-meals {
+    padding: 50px;
+}
+
+.meals-grid, .meals-slider {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.meal-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #eee;
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+.meal-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(191, 183, 183, 0.608);
+}
+
+.meal-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.meal-card h3 {
+    margin: 15px 0 5px;
+    font-size: 1.3rem;
+    color: #333;
+}
+
+.meal-card p {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.meal-card .price {
+    font-weight: bold;
+    color: var(--accent-color);
+    font-size: 1.2rem;
+}
+
+/* الأزرار داخل البطاقات */
+.meal-card button {
+    width: 80%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.details-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.details-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* شارة "مغلق" */
+.image-container {
+    position: relative;
+}
+
+.closed-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(159, 146, 146, 0.7);
+    color: rgb(218, 206, 206);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}

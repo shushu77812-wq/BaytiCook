@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة تحكم الطاهية</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chefs.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .container { display:flex; }
+    .sidebar { width:220px; background:#333; color:#fff; padding:20px; }
+    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; }
+    .sidebar a:hover { background:#444; }
+    .content { flex:1; padding:10px; }
+    .success-alert { background:#d4edda; padding:15px; border:1px solid #c3e6cb; margin-bottom:20px; border-radius:8px; }
+    .alert { background:#fff3cd; padding:15px; border:1px solid #ffeeba; margin-bottom:20px; border-radius:8px; }
+    .stats { display:flex; flex-wrap:wrap; }
+    .stat-card { flex:1; min-width:150px; text-align:center; padding:20px; margin:10px; border-radius:8px; }
+    .cards { display:flex; flex-wrap:wrap; margin-top:20px; }
+    .card { flex:1; min-width:200px; background:#f9f9f9; padding:15px; margin:10px; border-radius:8px; text-align:center; }
+    .card a { display:inline-block; margin-top:10px; padding:8px 12px; background:#27ae60; color:#fff; border-radius:6px; text-decoration:none; }
+    .card a:hover { background:#219150; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>👩‍🍳 لوحة الطاهية</h2>
+    <a href="/dashboard"><i class="fa fa-home"></i> الرئيسية</a>
+    <a href="/meals"><i class="fa fa-utensils"></i> الأطباق</a>
+    <a href="/orders"><i class="fa fa-receipt"></i> الطلبات</a>
+    <a href="/logout"><i class="fa fa-sign-out-alt"></i> تسجيل خروج</a>
+    <a href="{{ url_for('home.index') }}">🏠 العودة للموقع</a>
+
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <h1>مرحباً {{ user.name }}</h1>
+
+    <!-- شعار الموافقة -->
+    {% if user.status == "approved" %}
+    <div class="success-alert">
+      🎉 مبروك! تم الموافقة على حسابك من الأدمن، يمكنك الآن إدارة مطبخك وأطباقك.
+    </div>
+    {% endif %}
+
+    <!-- تنبيه الطلبات -->
+    {% if new_orders > 0 %}
+    <div class="alert">
+      <i class="fa fa-bell"></i> 🔔 لديك {{ new_orders }} طلب جديد
+      <a href="/orders" style="margin-right:10px; color:#856404;">عرض الطلبات</a>
+    </div>
+    {% endif %}
+
+    <!-- الاحصائيات -->
+    <div class="stats">
+      <div class="stat-card" style="background:#d4edda;">
+        <h3>عدد الأطباق</h3>
+        <p>{{ meals_count }}</p>
+      </div>
+      <div class="stat-card" style="background:#cce5ff;">
+        <h3>عدد الطلبات</h3>
+        <p>{{ orders_count }}</p>
+      </div>
+      <div class="stat-card" style="background:#fff3cd;">
+        <h3>قيد التحضير</h3>
+        <p>{{ preparing_count }}</p>
+      </div>
+      <div class="stat-card" style="background:#f8d7da;">
+        <h3>الطلبات الملغاة</h3>
+        <p>{{ cancelled_count }}</p>
+      </div>
+    </div>
+
+    <!-- العمليات السريعة -->
+    <div class="cards">
+      <div class="card">
+        <h3>إدارة الأطباق</h3>
+        <p>عرض وتعديل الأطباق</p>
+        <a href="/meals">فتح</a>
+      </div>
+      <div class="card">
+        <h3>الطلبات</h3>
+        <p>عرض طلبات الزبائن</p>
+        <a href="/orders">فتح</a>
+      </div>
+     
+    </div>
+  </div>
+</div>
+</body>
+</html>

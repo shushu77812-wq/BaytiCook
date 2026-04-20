@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تفاصيل الطبق</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: "Tahoma", sans-serif;
+        }
+        .meal-card {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+        .meal-card h2 {
+            color: #343a40;
+            margin-bottom: 15px;
+        }
+        .meal-card p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .meal-card .images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .meal-card .images img {
+            width: 150px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 18px;
+            background: #007bff;
+            color: #fff;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .btn-back:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="meal-card text-center">
+    <h2>{{ meal.name }}</h2>
+    <p>{{ meal.description }}</p>
+    <p>💰 السعر: <strong>{{ meal.price }}</strong> ريال</p>
+    <p>الحالة: 
+        {% if meal.is_available %}
+            <span style="color:green;">✅ متاح</span>
+        {% else %}
+            <span style="color:red;">❌ غير متاح</span>
+        {% endif %}
+    </p>
+
+    <div class="images">
+        {% for img in images %}
+            <img src="{{ url_for('static', filename='uploads/' ~ img.image) }}" alt="صورة الطبق">
+        {% endfor %}
+    </div>
+
+    <a href="{{ url_for('chef.meals') }}" class="btn-back">🔙 رجوع للأطباق</a>
+</div>
+
+</body>
+</html>

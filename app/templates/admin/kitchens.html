@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<title>إدارة المطابخ</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Tahoma;
+background:#f5f6fa;
+direction:rtl;
+display:flex;
+}
+
+/* sidebar */
+.sidebar{
+width:220px;
+background:#1e272e;
+color:white;
+height:100vh;
+padding:20px;
+position:fixed;
+right:0;
+top:0;
+}
+
+.sidebar h2{
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:block;
+color:white;
+text-decoration:none;
+margin:15px 0;
+padding:10px;
+border-radius:6px;
+}
+
+.sidebar a:hover{
+background:#ff6a00;
+}
+
+/* content */
+.content{
+margin-right:240px;
+padding:30px;
+width:100%;
+}
+
+/* grid */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+gap:20px;
+}
+
+/* card */
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.card img{
+width:100%;
+height:150px;
+object-fit:cover;
+border-radius:8px;
+margin-bottom:10px;
+}
+
+.btn{
+display:inline-block;
+margin-top:10px;
+padding:8px 15px;
+border-radius:6px;
+color:white;
+text-decoration:none;
+}
+
+.feature{background:#27ae60;}
+.unfeature{background:#e74c3c;}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+<h2>BaytiCook</h2>
+
+<a href="/admin">لوحة التحكم</a>
+<a href="/admin/chefs">الطاهيات</a>
+<a href="/admin/kitchens">المطابخ</a>
+<a href="/admin/meals">الأكلات</a>
+<a href="/admin/orders">الطلبات</a>
+<a href="/">الموقع</a>
+
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<h2>إدارة المطابخ</h2>
+
+<div class="grid">
+
+{% for kitchen in kitchens %}
+
+<div class="card">
+
+<img src="/static/uploads/{{ kitchen.kitchen_logo }}">
+<h3>{{ kitchen.kitchen_name }}</h3>
+
+<p>👤 {{ kitchen.user.name if kitchen.user else "غير معروف" }}</p>
+
+<p>📱 {{ kitchen.user.phone if kitchen.user else "-" }}</p>
+
+<p>📍 {{ kitchen.location }}</p>
+
+<p>
+{% if kitchen.featured %}
+⭐ مميز
+{% else %}
+عادي
+{% endif %}
+</p>
+
+{% if kitchen.featured %}
+<a class="btn unfeature" href="/admin/toggle-featured/{{ kitchen.id }}">
+إلغاء التمييز
+</a>
+{% else %}
+<a class="btn feature" href="/admin/toggle-featured/{{ kitchen.id }}">
+تمييز ⭐
+</a>
+{% endif %}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</body>
+</html>

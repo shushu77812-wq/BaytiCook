@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>{{ kitchen.name }}</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<header class="header">
+
+<a href="/">العودة للرئيسية</a>
+
+</header>
+
+
+<section class="kitchen-info">
+
+<img src="/static/uploads/{{ kitchen.logo }}" class="kitchen-logo">
+
+<h1>{{ kitchen.name }}</h1>
+
+<p>{{ kitchen.location }}</p>
+
+<p>{{ kitchen.description }}</p>
+
+</section>
+
+
+<hr>
+
+
+<section class="kitchen-meals">
+
+<h2>الأكلات</h2>
+
+<div class="meals-grid">
+
+{% for meal in meals %}
+
+<div class="meal-card">
+
+<img src="/static/uploads/{{ meal.image }}">
+
+<h3>{{ meal.name }}</h3>
+
+<p>{{ meal.price }} ريال</p>
+
+<a href="/meal/{{ meal.id }}">
+<button>عرض التفاصيل</button>
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</section>
+
+
+</body>
+
+</html>
