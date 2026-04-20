@@ -11,7 +11,7 @@ def create_app():
 
     app.config["SECRET_KEY"] = "123456789"
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")  
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     ##app.config["SESSION_PERMANENT"] = False   # 🔥 مهم للسلة
