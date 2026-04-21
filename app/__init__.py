@@ -8,20 +8,21 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 def create_app():
-
     app = Flask(__name__)
-
     app.config["SECRET_KEY"] = "123456789"
 
-    # 🔥 تعديل مهم لرابط قاعدة البيانات
+    # أولاً نحاول نقرأ DATABASE_URL (لـ Render)
     uri = os.environ.get("DATABASE_URL")
 
-    if uri and uri.startswith("mysql://"):
-        uri = uri.replace("mysql://", "mysql+pymysql://", 1)
+    if uri:
+        if uri.startswith("mysql://"):
+            uri = uri.replace("mysql://", "mysql+pymysql://", 1)
+        app.config["SQLALCHEMY_DATABASE_URI"] = uri
+    else:
+        # إذا ما فيه DATABASE_URL (يعني محلي)، نستخدم MySQL المحلي
+        app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/bayticook"
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
     db.init_app(app)
 
     from app.routes.home_routes import home

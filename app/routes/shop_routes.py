@@ -135,7 +135,7 @@ def create_order():
 
         new_order = Order(
     user_id=session["user_id"],
-    customer_id=session["user_id"],   # 🔥 نفس المستخدم
+    customer_id=session["user_id"],  
     kitchen_id=kitchen_id,
     total_price=total_price,
     status="قيد المراجعة"
@@ -156,7 +156,6 @@ def create_order():
 
     session["cart"] = {}
 
-    # ✅ تحويل المستخدم مباشرة لصفحة متابعة الطلبات
     return redirect(url_for("shop.my_orders"))
 
 

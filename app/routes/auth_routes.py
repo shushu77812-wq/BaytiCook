@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, redirect, session, url_fo
 from app import db
 from app.models.user_model import User
 from app.models.password_reset_model import PasswordReset
-from app.models.kitchen_model import Kitchen   # ← لازم نستورد الموديل Kitchen
+from app.models.kitchen_model import Kitchen   
 import random
 
 auth = Blueprint("auth", __name__)
@@ -48,7 +48,7 @@ def register():
         if role == "customer":
             session["user_id"] = new_user.id
             session["role"] = new_user.role
-            # ✅ الزبون يروح للصفحة الرئيسية الصحيحة
+     
             return redirect(url_for("home.index"))
 
         return "تم إرسال طلبك للإدارة للموافقة"
@@ -88,8 +88,8 @@ def login():
             elif user.role == "admin":
                 return redirect("/admin")
             else:
-                # الزبون → الصفحة الرئيسية
-                return redirect(url_for("home.index"))  # ✅ هذا هو الصحيح
+              
+                return redirect(url_for("home.index")) 
         else:
             return "الرقم أو كلمة المرور غير صحيحة"
 
@@ -117,10 +117,8 @@ def forgot_password():
         db.session.add(pr)
         db.session.commit()
 
-        # ✅ تعديل اسم القالب
         return render_template("home/enter_otp.html", phone=phone)
 
-    # ✅ تعديل اسم القالب
     return render_template("home/forgot_password.html")
 
 

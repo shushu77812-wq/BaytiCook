@@ -39,7 +39,6 @@ def dashboard():
 
 # إنشاء مطبخ
 
-# نتأكد إن مجلد الرفع موجود
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
@@ -53,7 +52,7 @@ def create_kitchen():
 
     if request.method == "POST":
         kitchen_name = request.form.get("kitchen_name")
-        kitchen_logo_file = request.files.get("kitchen_logo")   # ← الاسم مطابق للموديل
+        kitchen_logo_file = request.files.get("kitchen_logo")  
         chef_name = request.form.get("chef_name")
         chef_phone = request.form.get("chef_phone")
         bank_account_number = request.form.get("bank_account_number")
@@ -66,7 +65,7 @@ def create_kitchen():
 
         new_kitchen = Kitchen(
             kitchen_name=kitchen_name,
-            kitchen_logo=logo_filename,   # ✅ العمود الصحيح           
+            kitchen_logo=logo_filename,             
             description=description,
             user_id=user_id
         )
