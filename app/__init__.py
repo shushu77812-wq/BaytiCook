@@ -1,8 +1,8 @@
 import pymysql
 pymysql.install_as_MySQLdb()
+
 from flask import Flask
 import os
-
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -13,10 +13,14 @@ def create_app():
 
     app.config["SECRET_KEY"] = "123456789"
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    # 🔥 تعديل مهم لرابط قاعدة البيانات
+    uri = os.environ.get("DATABASE_URL")
 
-    ##app.config["SESSION_PERMANENT"] = False   # 🔥 مهم للسلة
+    if uri and uri.startswith("mysql://"):
+        uri = uri.replace("mysql://", "mysql+pymysql://", 1)
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = uri
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
 
