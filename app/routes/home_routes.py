@@ -11,10 +11,9 @@ home = Blueprint("home", __name__)
 @home.route("/")
 def index():
 
-    meals = Meal.query.all()
-    featured_kitchens = Kitchen.query.filter_by(featured=True).all()
+    meals = []
+    featured_kitchens = []
 
-    # 🛒 عدد عناصر السلة
     cart_count = len(session.get("cart", {}))
 
     return render_template(
