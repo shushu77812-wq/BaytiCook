@@ -8,10 +8,18 @@ app = create_app()
 with app.app_context():
     db.create_all()
 
-    # 🔥 تعديل كلمة مرور الادمن
-    user = User.query.filter_by(role="admin").first()
-    if user:
-        user.password_hash = generate_password_hash("123456")
+    # 🔥 إنشاء أدمن إذا ما كان موجود
+    admin = User.query.filter_by(phone="781765358").first()
+
+    if not admin:
+        admin = User(
+            name="Admin",
+            phone="781765358",
+            password_hash=generate_password_hash("123456"),
+            role="admin",
+            status="approved"
+        )
+        db.session.add(admin)
         db.session.commit()
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 from flask import Flask
-import os
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -8,17 +7,8 @@ def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "123456789"
 
-    uri = os.environ.get("DATABASE_URL")
-
-    if uri:
-        # إصلاح رابط PostgreSQL في Render
-        if uri.startswith("postgres://"):
-            uri = uri.replace("postgres://", "postgresql://", 1)
-
-        app.config["SQLALCHEMY_DATABASE_URI"] = uri
-    else:
-        # تشغيل محلي (بدون MySQL)
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///local.db"
+    # 🔥 SQLite فقط (سريع للمناقشة)
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
