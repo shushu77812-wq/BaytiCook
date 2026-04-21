@@ -32,14 +32,13 @@
     <a href="/orders"><i class="fa fa-receipt"></i> الطلبات</a>
     <a href="/logout"><i class="fa fa-sign-out-alt"></i> تسجيل خروج</a>
     <a href="{{ url_for('home.index') }}">🏠 العودة للموقع</a>
-
   </div>
 
   <!-- CONTENT -->
   <div class="content">
     <h1>مرحباً {{ user.name }}</h1>
 
-    <!-- شعار الموافقة -->
+    <!-- رسالة الموافقة -->
     {% if user.status == "approved" %}
     <div class="success-alert">
       🎉 مبروك! تم الموافقة على حسابك من الأدمن، يمكنك الآن إدارة مطبخك وأطباقك.
@@ -86,9 +85,18 @@
         <p>عرض طلبات الزبائن</p>
         <a href="/orders">فتح</a>
       </div>
-     
     </div>
   </div>
 </div>
+
+<!-- 🔥 التحديث التلقائي -->
+{% if user.status != "approved" %}
+<script>
+  setInterval(function() {
+    location.reload();
+  }, 5000);
+</script>
+{% endif %}
+
 </body>
 </html>

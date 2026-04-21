@@ -68,34 +68,36 @@ def login():
         user = User.query.filter_by(phone=phone).first()
 
         if user and user.check_password(password):
-            # التحقق من حالة الحساب
+
+            # ❌ لا نحفظ الجلسة قبل التحقق
             if user.status == "pending":
-                return "⏳ حسابك بانتظار موافقة الأدمن"
+                return "⏳ حسابك بانتظار الموافقة، سيتم تحديثه تلقائيًا"
+
             elif user.status == "rejected":
                 return "❌ حسابك مرفوض، تواصل مع الإدارة"
 
-            # تخزين بيانات الجلسة
+            # ✅ نحفظ الجلسة بعد التأكد
             session["user_id"] = user.id
             session["role"] = user.role
 
-            # التوجيه حسب الدور
+            # 🔥 التوجيه حسب الدور
             if user.role == "chef":
                 kitchen = Kitchen.query.filter_by(user_id=user.id).first()
                 if kitchen:
                     return redirect(url_for("chef.dashboard"))
                 else:
                     return redirect(url_for("chef.create_kitchen"))
+
             elif user.role == "admin":
                 return redirect("/admin")
+
             else:
-              
-                return redirect(url_for("home.index")) 
+                return redirect(url_for("home.index"))
+
         else:
             return "الرقم أو كلمة المرور غير صحيحة"
 
     return render_template("login.html")
-
-
 # ----------------------
 # نسيت كلمة المرور - إرسال رمز
 # ----------------------
