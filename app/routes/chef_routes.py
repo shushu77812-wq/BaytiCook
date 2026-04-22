@@ -39,8 +39,12 @@ def dashboard():
 
 # إنشاء مطبخ
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+# تأكد من إنشاء المجلد
+if not os.path.exists(os.path.join("app", "static", "uploads")):
+    os.makedirs(os.path.join("app", "static", "uploads"))
+
+UPLOAD_FOLDER = os.path.join("app", "static", "uploads")
+
 
 @chef.route("/create_kitchen", methods=["GET", "POST"])
 def create_kitchen():
@@ -59,9 +63,13 @@ def create_kitchen():
         description = request.form.get("description")
         
         logo_filename = None
+
+        # ✅ تعديل حفظ الصورة
         if kitchen_logo_file and kitchen_logo_file.filename != "":
             logo_filename = secure_filename(kitchen_logo_file.filename)
-            kitchen_logo_file.save(os.path.join(UPLOAD_FOLDER, logo_filename))
+
+            save_path = os.path.join(UPLOAD_FOLDER, logo_filename)
+            kitchen_logo_file.save(save_path)
 
         new_kitchen = Kitchen(
             kitchen_name=kitchen_name,
@@ -72,6 +80,7 @@ def create_kitchen():
 
         db.session.add(new_kitchen)
         db.session.commit()
+
         flash("✅ تم إنشاء المطبخ بنجاح")
         return redirect(url_for("chef.dashboard"))
 
@@ -103,15 +112,21 @@ def meals():
         db.session.add(new_meal)
         db.session.commit()
 
+        # 📁 تأكد من وجود المجلد
+        UPLOAD_FOLDER = os.path.join("app", "static", "uploads")
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+
         # رفع الصور وتخزينها
         images = request.files.getlist("images")
         for img in images:
             if img and img.filename != "":
                 filename = secure_filename(img.filename)
-                save_path = os.path.join(app.root_path, "static/uploads", filename)
+
+                # ✅ التعديل هنا فقط
+                save_path = os.path.join(UPLOAD_FOLDER, filename)
                 img.save(save_path)
 
-                # نخزن فقط اسم الملف في قاعدة البيانات
                 meal_img = MealImage(image=filename, meal_id=new_meal.id)
                 db.session.add(meal_img)
 
@@ -146,11 +161,20 @@ def edit_meal(meal_id):
         meal.description = request.form.get("description")
         meal.price = float(request.form.get("price"))
 
+        # 📁 تأكد من وجود المجلد
+        UPLOAD_FOLDER = os.path.join("app", "static", "uploads")
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+
         images = request.files.getlist("images")
         for img in images:
             if img and img.filename != "":
                 filename = secure_filename(img.filename)
-                img.save(os.path.join(UPLOAD_FOLDER, filename))
+
+                # ✅ تعديل المسار
+                save_path = os.path.join(UPLOAD_FOLDER, filename)
+                img.save(save_path)
+
                 new_img = MealImage(image=filename, meal_id=meal.id)
                 db.session.add(new_img)
 
@@ -159,19 +183,6 @@ def edit_meal(meal_id):
         return redirect(url_for("chef.meals"))
 
     return render_template("chef/edit_meal.html", meal=meal, user=user)
-
-@chef.route("/meals/delete-image/<int:image_id>")
-def delete_image(image_id):
-    img = MealImage.query.get_or_404(image_id)
-    img_path = os.path.join(UPLOAD_FOLDER, img.image)
-    if os.path.exists(img_path):
-        os.remove(img_path)
-
-    db.session.delete(img)
-    db.session.commit()
-    flash("تم حذف الصورة 🗑️")
-    return redirect(url_for("chef.edit_meal", meal_id=img.meal_id))
-
 # إدارة الطلبات
 @chef.route("/orders")
 def orders():
