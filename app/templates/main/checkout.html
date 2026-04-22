@@ -4,16 +4,20 @@
 <head>
 <meta charset="UTF-8">
 <title>الدفع</title>
+
 <style>
 body {
     font-family: Tahoma, sans-serif;
     background:#f8f9fa;
     padding:20px;
 }
+
 h2 {
     text-align:center;
     margin-bottom:20px;
 }
+
+/* صندوق المطبخ */
 .kitchen-box {
     border:1px solid #ddd;
     margin:15px auto;
@@ -23,16 +27,17 @@ h2 {
     max-width:700px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
+
 .kitchen-box h3 {
     margin-bottom:10px;
-    color:#333;
 }
-.kitchen-box p {
-    margin:5px 0;
+
+.item {
+    border-bottom:1px solid #eee;
+    padding:10px 0;
 }
-.upload-proof {
-    margin-top:10px;
-}
+
+/* زر */
 button {
     background:#28a745;
     color:white;
@@ -42,48 +47,59 @@ button {
     cursor:pointer;
     margin-top:20px;
     font-size:16px;
+    width:100%;
 }
+
 button:hover {
     background:#218838;
 }
 </style>
+
 </head>
 
 <body>
 
 <h2>💳 الدفع</h2>
 
-{% for kitchen_id, items in grouped_cart.items() %}
-<div class="kitchen-box">
+{% if meals %}
 
-  <!-- اسم المطبخ -->
-  <h3>🍳 {{ items[0].meal.kitchen.kitchen_name }}</h3>
+    {% for meal in meals %}
+    <div class="kitchen-box">
 
-  <!-- قائمة الأطباق -->
-  {% for item in items %}
-    <p>{{ item.meal.name }} × {{ item.quantity }}</p>
-  {% endfor %}
+        <!-- اسم المطبخ -->
+        <h3>🍳 {{ meal.kitchen.kitchen_name }}</h3>
 
-  <hr>
-  <!-- بيانات التحويل البنكي -->
-  <h4>🏦 بيانات التحويل البنكي</h4>
-  <p>👩‍🍳 اسم الطاهية: {{ items[0].meal.kitchen.user.name }}</p>
-  <p>📞 رقم الهاتف: {{ items[0].meal.kitchen.user.phone }}</p>
-  <p>💳 رقم الحساب: {{ items[0].meal.kitchen.bank_account_number }}</p>
-  <p>🏦 البنك: {{ items[0].meal.kitchen.bank_account_name }}</p>
+        <!-- بيانات الطبق -->
+        <div class="item">
+            <p>🍽 {{ meal.name }}</p>
+            <p>الكمية: {{ meal.quantity }}</p>
+            <p>الإجمالي: {{ meal.price * meal.quantity }} ريال</p>
+        </div>
 
-  <!-- ✨ رفع صورة إيصال التحويل -->
-  <div class="upload-proof">
-    <label for="proof_{{ kitchen_id }}">📷 أرفق صورة إيصال التحويل:</label><br>
-    <input type="file" id="proof_{{ kitchen_id }}" name="proof_{{ kitchen_id }}" accept="image/*">
-  </div>
+        <hr>
 
-</div>
-{% endfor %}
+        <!-- بيانات التحويل -->
+        <h4>🏦 بيانات التحويل</h4>
+        <p>👩‍🍳 {{ meal.kitchen.user.name if meal.kitchen.user else "-" }}</p>
+        <p>📞 {{ meal.kitchen.user.phone if meal.kitchen.user else "-" }}</p>
+        <p>💳 {{ meal.kitchen.bank_account_number }}</p>
 
-<form method="POST" action="/create-order" enctype="multipart/form-data" style="text-align:center;">
-  <button type="submit">✅ تأكيد الطلب</button>
-</form>
+        <!-- رفع الإيصال (شكلي فقط) -->
+        <input type="file" name="proof" accept="image/*">
+
+    </div>
+    {% endfor %}
+
+    <!-- زر تأكيد -->
+    <form method="POST" action="/checkout" enctype="multipart/form-data">
+        <button type="submit">✅ تأكيد الطلب</button>
+    </form>
+
+{% else %}
+
+    <p style="text-align:center;">😢 لا يوجد عناصر للدفع</p>
+
+{% endif %}
 
 </body>
 </html>

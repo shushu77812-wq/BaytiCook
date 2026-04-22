@@ -137,11 +137,11 @@ text-decoration:none;
 </p>
 
 {% if kitchen.featured %}
-<a class="btn unfeature" href="/admin/toggle-featured/{{ kitchen.id }}">
+<a class="btn unfeature" href="/admin/toggle-feature/{{ kitchen.id }}">
 إلغاء التمييز
 </a>
 {% else %}
-<a class="btn feature" href="/admin/toggle-featured/{{ kitchen.id }}">
+<a class="btn feature" href="/admin/toggle-feature/{{ kitchen.id }}">
 تمييز ⭐
 </a>
 {% endif %}

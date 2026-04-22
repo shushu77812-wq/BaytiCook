@@ -26,7 +26,6 @@ def admin_dashboard():
 # إدارة الطاهيات
 @admin.route("/admin/chefs")
 def admin_chefs():
-    # عرض فقط الطاهيات
     chefs = User.query.filter_by(role="chef").all()
     return render_template("admin/chefs.html", chefs=chefs)
 
@@ -58,7 +57,15 @@ def toggle_kitchen(kitchen_id):
     kitchen = Kitchen.query.get_or_404(kitchen_id)
     kitchen.is_open = not kitchen.is_open
     db.session.commit()
-    return redirect("/admin/chefs")
+    return redirect("/admin/kitchens")  # ✅ تعديل
+
+# ⭐ تمييز / إلغاء تمييز المطبخ
+@admin.route("/admin/toggle-feature/<int:kitchen_id>")
+def toggle_feature(kitchen_id):
+    kitchen = Kitchen.query.get_or_404(kitchen_id)
+    kitchen.featured = not kitchen.featured
+    db.session.commit()
+    return redirect("/admin/kitchens")
 
 # إدارة الأكلات
 @admin.route("/admin/meals")
@@ -98,3 +105,15 @@ def delete_chef(chef_id):
     except Exception as e:
         db.session.rollback()
         return f"خطأ: {e}"
+
+
+# ✅ تحديث حالة الطلب 
+@admin.route("/admin/update-order/<int:order_id>/<string:new_status>")
+def update_order(order_id, new_status):
+    order = Order.query.get_or_404(order_id)
+
+    if new_status in ["preparing", "delivered"]:
+        order.status = new_status
+        db.session.commit()
+
+    return redirect("/admin/orders")

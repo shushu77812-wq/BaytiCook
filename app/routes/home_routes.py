@@ -10,9 +10,15 @@ home = Blueprint("home", __name__)
 # =============================
 @home.route("/")
 def index():
+    try:
+        # ✅ المطابخ المميزة
+        featured_kitchens = Kitchen.query.filter_by(featured=True).all()
 
-    meals = []
-    featured_kitchens = []
+        # ✅ جميع الأطباق
+        meals = Meal.query.all()
+
+    except Exception as e:
+        return f"Database Error: {e}"
 
     cart_count = len(session.get("cart", {}))
 
@@ -24,7 +30,6 @@ def index():
     )
 
 
-
 # =============================
 # صفحة المطبخ
 # =============================
@@ -33,7 +38,7 @@ def kitchen_page(id):
 
     kitchen = Kitchen.query.get_or_404(id)
 
-    #  إذا المطبخ مغلق
+    # 🔴 إذا المطبخ مغلق
     if not kitchen.is_open:
         return "❌ هذا المطبخ مغلق حالياً"
 
@@ -74,8 +79,15 @@ def search():
         cart_count=cart_count
     )
 
+
+# =============================
+# الطلب
+# =============================
 @home.route("/order/<int:meal_id>")
 def order_meal(meal_id):
     meal = Meal.query.get_or_404(meal_id)
-    # هنا تضيفي منطق إنشاء الطلب أو صفحة تأكيد الطلب
-    return render_template("home/order_meal.html", meal=meal)
+
+    return render_template(
+        "home/order_meal.html",
+        meal=meal
+    )

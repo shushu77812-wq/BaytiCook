@@ -4,7 +4,56 @@
 <head>
   <meta charset="UTF-8">
   <title>الطلبات</title>
-  <link rel="stylesheet" href="/static/css/admin.css">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+
+  <style>
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .orders-table th,
+    .orders-table td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .orders-table th {
+      background: #1e272e;
+      color: white;
+    }
+
+    /* الحالة */
+    .status {
+      padding: 5px 10px;
+      border-radius: 6px;
+      color: white;
+      font-size: 12px;
+    }
+
+    .pending { background: #f39c12; }
+    .preparing { background: #3498db; }
+    .delivered { background: #2ecc71; }
+
+    /* الأزرار */
+    .btn {
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: white;
+      text-decoration: none;
+      font-size: 12px;
+      margin: 2px;
+    }
+
+    .preparing { background: #3498db; }
+    .delivered { background: #2ecc71; }
+  </style>
+
 </head>
 
 <body>
@@ -36,7 +85,10 @@
       {% for order in orders %}
       <tr>
         <td>#{{ order.id }}</td>
-        <td>{{ order.user_id }}</td>
+
+        <!-- 🔥 الأفضل -->
+        <td>{{ order.user.name if order.user else order.user_id }}</td>
+
         <td>
           {% if order.status == "pending" %}
             <span class="status pending">قيد الانتظار</span>
@@ -48,12 +100,14 @@
             <span class="status">{{ order.status }}</span>
           {% endif %}
         </td>
+
         <td>
           <a class="btn preparing" href="/admin/update-order/{{ order.id }}/preparing">تحضير</a>
           <a class="btn delivered" href="/admin/update-order/{{ order.id }}/delivered">توصيل</a>
         </td>
       </tr>
       {% endfor %}
+
     </table>
   </div>
 

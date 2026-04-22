@@ -14,7 +14,6 @@ body{
   display:flex;
 }
 
-/* sidebar */
 .sidebar{
   width:220px;
   background:#1e272e;
@@ -38,7 +37,6 @@ body{
   width:100%;
 }
 
-/* order box */
 .order-box{
   background:white;
   padding:20px;
@@ -47,17 +45,18 @@ body{
   box-shadow:0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* progress bar */
 .progress{
   display:flex;
   justify-content:space-between;
   margin-top:15px;
 }
+
 .step{
   flex:1;
   text-align:center;
   position:relative;
 }
+
 .step::before{
   content:"";
   position:absolute;
@@ -66,27 +65,25 @@ body{
   width:100%;
   height:4px;
   background:#ddd;
-  z-index:0;
 }
+
 .step:first-child::before{display:none;}
+
 .circle{
   width:20px;
   height:20px;
   border-radius:50%;
   background:#ddd;
   margin:auto;
-  z-index:1;
-  position:relative;
 }
+
 .active .circle{background:#27ae60;}
+
 .label{font-size:12px;margin-top:5px;}
 
-/* status colors */
-.pending{color:#999; background:#f0f0f0; padding:5px; border-radius:5px;}
-.preparing{color:#f39c12; background:#fff3cd; padding:5px; border-radius:5px;}
-.ready{color:#27ae60; background:#d4edda; padding:5px; border-radius:5px;}
-.on_way{color:#2980b9; background:#cce5ff; padding:5px; border-radius:5px;}
-.done{color:#2ecc71; background:#e2f7e2; padding:5px; border-radius:5px;}
+.pending{color:#999;background:#f0f0f0;padding:5px;border-radius:5px;}
+.preparing{color:#f39c12;background:#fff3cd;padding:5px;border-radius:5px;}
+.delivered{color:#2ecc71;background:#e2f7e2;padding:5px;border-radius:5px;}
 </style>
 </head>
 
@@ -96,7 +93,7 @@ body{
   <h2>👤 حسابي</h2>
   <a href="/">الرئيسية</a>
   <a href="/cart">السلة</a>
-  <a href="/my_orders">طلباتي</a>
+  <a href="/my-orders">طلباتي</a> <!-- ✅ تعديل -->
 </div>
 
 <div class="content">
@@ -107,67 +104,59 @@ body{
 <div class="order-box">
 
   <h3>طلب رقم {{ order.id }}</h3>
-  <p>🍳 المطبخ: {{ order.kitchen.kitchen_name }}</p>
+  <p>🍳 {{ order.kitchen.kitchen_name }}</p>
 
   <!-- الحالة -->
   <p class="
     {% if order.status == 'pending' %}pending
     {% elif order.status == 'preparing' %}preparing
-    {% elif order.status == 'ready' %}ready
-    {% elif order.status == 'on_way' %}on_way
-    {% elif order.status == 'done' %}done
+    {% elif order.status == 'delivered' %}delivered
     {% endif %}
   ">
+
     {% if order.status == "pending" %}
       ✅ تم الطلب
     {% elif order.status == "preparing" %}
       🍳 قيد التحضير
-    {% elif order.status == "ready" %}
-      📦 جاهز
-    {% elif order.status == "on_way" %}
-      🚚 في الطريق
-    {% elif order.status == "done" %}
-      ✔ تم التسليم
+    {% elif order.status == "delivered" %}
+      🚚 تم التوصيل
     {% endif %}
+
   </p>
 
   <p>💰 {{ order.total_price }} ريال</p>
 
-  <!-- قائمة الأطباق -->
+  <!-- الأطباق -->
   <ul>
     {% for item in order.items %}
       <li>{{ item.meal.name }} × {{ item.quantity }}</li>
     {% endfor %}
   </ul>
 
-  <!-- صورة إثبات التحويل -->
+  <!-- صورة التحويل -->
   {% if order.proof_image %}
     <p>📷 صورة التحويل:</p>
-    <img src="/static/uploads/proofs/{{ order.proof_image }}" alt="إثبات التحويل">
+    <img src="{{ url_for('static', filename='uploads/proofs/' + order.proof_image) }}" width="200">
   {% endif %}
 
-  <!-- progress bar -->
+  <!-- progress -->
   <div class="progress">
-    <div class="step {% if order.status in ['pending','preparing','ready','on_way','done'] %}active{% endif %}">
+
+    <div class="step {% if order.status in ['pending','preparing','delivered'] %}active{% endif %}">
       <div class="circle"></div>
       <div class="label">تم الطلب</div>
     </div>
-    <div class="step {% if order.status in ['preparing','ready','on_way','done'] %}active{% endif %}">
+
+    <div class="step {% if order.status in ['preparing','delivered'] %}active{% endif %}">
       <div class="circle"></div>
       <div class="label">تحضير</div>
     </div>
-    <div class="step {% if order.status in ['ready','on_way','done'] %}active{% endif %}">
-      <div class="circle"></div>
-      <div class="label">جاهز</div>
-    </div>
-    <div class="step {% if order.status in ['on_way','done'] %}active{% endif %}">
-      <div class="circle"></div>
-      <div class="label">في الطريق</div>
-    </div>
-    <div class="step {% if order.status == 'done' %}active{% endif %}">
+
+    <div class="step {% if order.status == 'delivered' %}active{% endif %}">
       <div class="circle"></div>
       <div class="label">تم</div>
     </div>
+
   </div>
 
 </div>
@@ -175,7 +164,6 @@ body{
 
 </div>
 
-<!-- تحديث تلقائي -->
 <script>
 setInterval(function(){
     location.reload();

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>BaytiCook</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
   <style>
     .nav-link {
@@ -21,15 +21,15 @@
       color: #fff;
     }
 
-   .nav {
-  display: flex;
-  justify-content: flex-start; /* الروابط لليمين */
-  align-items: center;
-  padding: 10px 10px;
-  background: transparent; /* شفاف بدون خلفية */
-  box-shadow: none; /* نشيل الظل */
-  position: relative;
-}
+    .nav {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 10px;
+      background: transparent;
+      box-shadow: none;
+      position: relative;
+    }
 
     .nav-links {
       display: flex;
@@ -58,7 +58,7 @@
     }
 
     .menu-toggle {
-      display: none; 
+      display: none;
       background: none;
       border: none;
       font-size: 22px;
@@ -66,26 +66,23 @@
     }
   </style>
 
-<script src="/static/js/main.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
 
 <body>
 
 <!-- HEADER -->
 <header class="header">
   <nav class="nav">
-   
-
-    <!-- زر القائمة للجوال -->
     <button class="menu-toggle" onclick="toggleMenu()">☰</button>
 
-    <!-- روابط -->
     <div id="menuLinks" class="nav-links">
-      <a href="/" class="nav-link"> الرئيسية</a>
-      <a href="/login" class="nav-link"> تسجيل الدخول</a>
-      <a href="/register" class="nav-link"> إنشاء حساب</a>
-      <a href="{{ url_for('shop.my_orders') }}" class="nav-link"> طلباتي</a>
+      <a href="/" class="nav-link">الرئيسية</a>
+      <a href="/login" class="nav-link">تسجيل الدخول</a>
+      <a href="/register" class="nav-link">إنشاء حساب</a>
+      <a href="{{ url_for('shop.my_orders') }}" class="nav-link">طلباتي</a>
       <a href="{{ url_for('shop.cart') }}" class="nav-link">🛒 السلة</a>
-      <a href="{{ url_for('auth.logout') }}" class="nav-link"> تسجيل الخروج</a>
+      <a href="{{ url_for('auth.logout') }}" class="nav-link">تسجيل الخروج</a>
     </div>
   </nav>
 </header>
@@ -100,7 +97,7 @@
   <div class="search-card">
     <div class="search-content">
       <div class="search-logo">
-        <img src="/static/images/WhatsApp Image 2026-03-09 at 1.15.58 AM (1).jpeg" alt="Logo">
+        <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo">
       </div>
 
       <form method="GET" action="/search" class="search-box">
@@ -116,20 +113,33 @@
   <h2>⭐ المطابخ المميزة</h2>
   <div class="slider-container">
     <button class="slider-btn left" onclick="scrollMeals(-1)">❮</button>
+
     <div class="meals-slider">
       {% for kitchen in featured_kitchens %}
       <div class="meal-card">
+
         <div class="image-container">
-          <img src="/static/uploads/{{ kitchen.kitchen_logo }}">
+          {% if kitchen.kitchen_logo %}
+            <img src="{{ url_for('static', filename='uploads/' + kitchen.kitchen_logo) }}">
+          {% else %}
+            <img src="{{ url_for('static', filename='uploads/no-image.png') }}">
+          {% endif %}
+
           {% if not kitchen.is_open %}
-          <div class="closed-badge">مغلق</div>
+            <div class="closed-badge">مغلق</div>
           {% endif %}
         </div>
+
         <h3>{{ kitchen.kitchen_name }}</h3>
-        <p>👩‍🍳 الطاهية: {{ kitchen.user.name }}</p>
-        <p>📞 {{ kitchen.user.phone }}</p>
+
+        {% if kitchen.user %}
+          <p>👩‍🍳 الطاهية: {{ kitchen.user.name }}</p>
+          <p>📞 {{ kitchen.user.phone }}</p>
+        {% endif %}
+
         <p>📍 {{ kitchen.location }}</p>
         <p>📝 {{ kitchen.description }}</p>
+
         {% if kitchen.is_open %}
         <a href="{{ url_for('home.kitchen_page', id=kitchen.id) }}">
           <button class="view-btn">عرض المطبخ</button>
@@ -137,22 +147,33 @@
         {% else %}
         <button class="closed-btn" disabled>مغلق</button>
         {% endif %}
+
       </div>
       {% endfor %}
     </div>
+
     <button class="slider-btn right" onclick="scrollMeals(1)">❯</button>
   </div>
 </section>
 
+<!-- ALL MEALS -->
 <h2>🍲 جميع الأكلات</h2>
+
 <div class="meals-grid" id="mealsGrid">
   {% for meal in meals %}
   <div class="meal-card">
-    <img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}">
+
+    {% if meal.images %}
+      <img src="{{ url_for('static', filename='uploads/' + meal.images[0].image) }}">
+    {% else %}
+      <img src="{{ url_for('static', filename='uploads/no-image.png') }}">
+    {% endif %}
+
     <h3>{{ meal.name }}</h3>
     <p class="price">{{ meal.price }} ريال</p>
     <p>من مطبخ {{ meal.kitchen.kitchen_name }}</p>
     <p class="description">{{ meal.description }}</p>
+
     {% if meal.kitchen.is_open %}
     <form action="/add-to-cart/{{ meal.id }}" method="POST">
       <button type="submit" style="background:#ff6a00; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-top:5px;">
@@ -164,6 +185,7 @@
       🔒 مغلق
     </button>
     {% endif %}
+
   </div>
   {% endfor %}
 </div>
@@ -172,6 +194,7 @@
   <button onclick="loadMoreMeals()" id="loadMoreBtn">تحميل المزيد</button>
 </div>
 
-<script src="/static/js/main.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 </body>
 </html>

@@ -17,7 +17,125 @@ def meal_details(id):
 
 
 # =============================
-# السلة
+# السلةfrom flask import Blueprint, render_template, request, redirect, session, url_for
+from app import db
+from app.models.meal_model import Meal
+from app.models.order_model import Order
+from app.models.order_item_model import OrderItem
+
+shop = Blueprint("shop", __name__)
+
+
+# =============================
+# عرض السلة
+# =============================
+@shop.route("/cart")
+def cart():
+    cart = session.get("cart", {})
+    meals = []
+    total_price = 0
+
+    for meal_id, quantity in cart.items():
+        meal = Meal.query.get(meal_id)
+        if meal:
+            meal.quantity = quantity
+            meals.append(meal)
+            total_price += meal.price * quantity
+
+    return render_template("main/cart.html", meals=meals, total_price=total_price)
+
+
+# =============================
+# إضافة للسلة
+# =============================
+@shop.route("/add-to-cart/<int:meal_id>", methods=["POST"])
+def add_to_cart(meal_id):
+    cart = session.get("cart", {})
+
+    if str(meal_id) in cart:
+        cart[str(meal_id)] += 1
+    else:
+        cart[str(meal_id)] = 1
+
+    session["cart"] = cart
+    return redirect(url_for("shop.cart"))  # فقط تعديل بسيط
+
+
+# =============================
+# حذف من السلة
+# =============================
+@shop.route("/remove-from-cart/<int:meal_id>")
+def remove_from_cart(meal_id):
+    cart = session.get("cart", {})
+
+    if str(meal_id) in cart:
+        del cart[str(meal_id)]
+
+    session["cart"] = cart
+    return redirect(url_for("shop.cart"))
+
+
+# =============================
+# إنشاء الطلب
+# =============================
+@shop.route("/checkout", methods=["POST"])
+def checkout():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    cart = session.get("cart", {})
+    if not cart:
+        return redirect(url_for("shop.cart"))
+
+    total_price = 0
+    kitchen_id = None
+
+    for meal_id, quantity in cart.items():
+        meal = Meal.query.get(meal_id)
+        if meal:
+            total_price += meal.price * quantity
+            kitchen_id = meal.kitchen_id
+
+    new_order = Order(
+        user_id=session["user_id"],
+        customer_id=session["user_id"],
+        kitchen_id=kitchen_id,
+        total_price=total_price,
+        status="pending"   # التعديل المهم هنا فقط
+    )
+
+    db.session.add(new_order)
+    db.session.commit()
+
+    for meal_id, quantity in cart.items():
+        meal = Meal.query.get(meal_id)
+        if meal:
+            item = OrderItem(
+                order_id=new_order.id,
+                meal_id=meal.id,
+                quantity=quantity,
+                price=meal.price
+            )
+            db.session.add(item)
+
+    db.session.commit()
+
+    session["cart"] = {}
+
+    return redirect(url_for("shop.my_orders"))
+
+
+# =============================
+# عرض الطلبات
+# =============================
+@shop.route("/my-orders")
+def my_orders():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    orders = Order.query.filter_by(user_id=session["user_id"]).all()
+
+    return render_template("main/my_orders.html", orders=orders)  # فقط تعديل .html
 # =============================
 @shop.route("/cart")
 def cart():

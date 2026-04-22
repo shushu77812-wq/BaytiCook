@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -6,7 +6,6 @@
 <title>إدارة الطاهيات</title>
 
 <style>
-/* ... التنسيقات السابقة ... */
 body{
 margin:0;
 font-family:Tahoma;
@@ -74,7 +73,6 @@ border: none;
 .feature{background:#f39c12;}
 .unfeature{background:#e74c3c;}
 
-/* كلاس زر الحذف الجديد */
 .delete{
     background:#c0392b; 
     margin-top: 20px;
@@ -125,9 +123,9 @@ border: none;
 
 {% if chef.kitchen.featured %}
 <p>⭐ مميز</p>
-<a class="btn unfeature" href="/admin/toggle-featured/{{ chef.kitchen.id }}">إلغاء التمييز</a>
+<a class="btn unfeature" href="/admin/toggle-feature/{{ chef.kitchen.id }}">إلغاء التمييز</a>
 {% else %}
-<a class="btn feature" href="/admin/toggle-featured/{{ chef.kitchen.id }}">تمييز ⭐</a>
+<a class="btn feature" href="/admin/toggle-feature/{{ chef.kitchen.id }}">تمييز ⭐</a>
 {% endif %}
 
 <br>
@@ -145,6 +143,7 @@ border: none;
 {% endif %}
 
 <hr>
+
 <a class="btn delete" 
    href="/admin/delete-chef/{{ chef.id }}" 
    onclick="return confirm('هل أنت متأكد من حذف هذه الطاهية؟ سيتم حذف جميع بياناتها ومطبخها نهائياً!')">

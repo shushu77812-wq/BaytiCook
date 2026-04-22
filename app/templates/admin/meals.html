@@ -4,7 +4,68 @@
 <head>
 <meta charset="UTF-8">
 <title>إدارة الأكلات</title>
-<link rel="stylesheet" href="/static/css/admin.css">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+
+<style>
+
+/* 🔥 تنسيق الجدول */
+.meals-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.meals-table th,
+.meals-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+/* رأس الجدول */
+.meals-table th {
+  background: #1e272e;
+  color: white;
+}
+
+/* الصورة */
+.meals-table img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* الوصف لا يكسر الجدول */
+.meals-table td:nth-child(3) {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* أزرار */
+.btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.edit {
+  background: #3498db;
+}
+
+.delete {
+  background: #e74c3c;
+}
+
+</style>
+
 </head>
 
 <body>
@@ -25,7 +86,7 @@
 <div class="content">
   <h1>🍲 إدارة الأكلات</h1>
 
-<table class="meals-table">
+  <table class="meals-table">
     <tr>
       <th>الصورة</th>
       <th>اسم الأكلة</th>
@@ -37,18 +98,35 @@
 
     {% for meal in meals %}
     <tr>
-      <td><img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}" width="70"></td>
+
+      <!-- ✅ صورة آمنة -->
+      <td>
+        {% if meal.images %}
+          <img src="{{ url_for('static', filename='uploads/' + meal.images[0].image) }}">
+        {% else %}
+          <img src="{{ url_for('static', filename='uploads/no-image.png') }}">
+        {% endif %}
+      </td>
+
       <td>{{ meal.name }}</td>
+
+      <!-- ✅ وصف مختصر -->
       <td>{{ meal.description }}</td>
+
       <td>{{ meal.price }} ريال</td>
+
       <td>{{ meal.kitchen.kitchen_name }}</td>
+
       <td>
         <a href="/admin/edit-meal/{{ meal.id }}" class="btn edit">تعديل</a>
         <a href="/admin/delete-meal/{{ meal.id }}" class="btn delete">حذف</a>
       </td>
+
     </tr>
     {% endfor %}
+
   </table>
+
 </div>
 
 </div>
