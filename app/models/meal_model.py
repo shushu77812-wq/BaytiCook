@@ -15,7 +15,7 @@ class Meal(db.Model):
     # 🖼️ صور الأكلة
     images = db.relationship("MealImage", back_populates="meal", cascade="all, delete-orphan")
 
-    # 🟢 حالة الطبق (مثلاً: approved / pending)
+    # 🟢 حالة الطبق (approved / pending)
     status = db.Column(db.String(20), default="pending")
 
     # 🟢 التمييز (0 = عادي، 1 = مميز)

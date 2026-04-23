@@ -10,17 +10,20 @@ class Kitchen(db.Model):
     bank_account_name = db.Column(db.String(150))
     bank_account_number = db.Column(db.String(100))
 
-    # ✅ تعديل ENUM إلى String
+    # ✅ بدل ENUM إلى String
     status = db.Column(db.String(20), default="pending")
 
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
 
-    # ✅ تعديل Boolean إلى Integer
+    # ✅ بدل Boolean إلى Integer
     featured = db.Column(db.Integer, default=0)  # 0 = عادي، 1 = مميز
     is_open = db.Column(db.Integer, default=1)   # 1 = مفتوح، 0 = مغلق
 
     location = db.Column(db.String(150))
     description = db.Column(db.Text)
+
+    # ✅ العلاقة مع الأطباق
+    meals = db.relationship("Meal", back_populates="kitchen", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Kitchen {self.kitchen_name}>"
