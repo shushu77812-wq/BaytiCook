@@ -18,7 +18,6 @@ def create_app():
     # ✅ استدعاء الموديلات (بدون مشاكل import *)
     from app.models.kitchen_model import Kitchen
     from app.models.meal_model import Meal
-    from app.models.meal_image_model import MealImage
     from app.models.order_model import Order
     from app.models.order_item_model import OrderItem
     from app.models.user_model import User

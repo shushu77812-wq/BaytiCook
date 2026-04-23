@@ -64,6 +64,36 @@
       font-size: 22px;
       cursor: pointer;
     }
+
+    /* زر عرض جميع المطابخ */
+    .view-all-btn {
+      background: #ff6a00;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .view-all-btn:hover {
+      background: #e55a00;
+    }
+
+    /* تحسين بطاقات الأطباق والمطابخ */
+    .meal-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .meal-card:hover {
+      transform: translateY(-5px);
+    }
   </style>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -81,7 +111,7 @@
       <a href="/login" class="nav-link">تسجيل الدخول</a>
       <a href="/register" class="nav-link">إنشاء حساب</a>
       <a href="{{ url_for('shop.my_orders') }}" class="nav-link">طلباتي</a>
-      <a href="{{ url_for('shop.cart') }}" class="nav-link">🛒 السلة</a>
+      <a href="{{ url_for('shop.cart') }}" class="nav-link">🛒 السلة ({{ cart_count }})</a>
       <a href="{{ url_for('auth.logout') }}" class="nav-link">تسجيل الخروج</a>
     </div>
   </nav>
@@ -110,7 +140,13 @@
 
 <!-- FEATURED KITCHENS -->
 <section class="featured">
-  <h2>⭐ المطابخ المميزة</h2>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>⭐ المطابخ المميزة</h2>
+    <a href="{{ url_for('home.all_kitchens') }}">
+      <button class="view-all-btn">عرض جميع المطابخ</button>
+    </a>
+  </div>
+
   <div class="slider-container">
     <button class="slider-btn left" onclick="scrollMeals(-1)">❮</button>
 

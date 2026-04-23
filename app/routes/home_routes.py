@@ -1,6 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask import Blueprint, render_template, request, redirect, session, flash, url_for
 from app.models.meal_model import Meal
 from app.models.kitchen_model import Kitchen
+from app.models.user_model import User
+from app import db, mail
+from flask_mail import Message
 
 home = Blueprint("home", __name__)
 
@@ -17,9 +20,10 @@ def index():
             Kitchen.status == "approved"
         ).all()
 
-        # ✅ جميع الأطباق (فقط الموافقة والمطابخ المفتوحة)
+        # ✅ جميع الأطباق (فقط الموافقة + المتوفرة + المطابخ المفتوحة)
         meals = Meal.query.join(Kitchen).filter(
             Meal.status == "approved",
+            Meal.is_available == 1,
             Kitchen.is_open == 1,
             Kitchen.status == "approved"
         ).all()
@@ -37,62 +41,78 @@ def index():
     )
 
 # =============================
-# صفحة المطبخ
+# موافقة الطاهية من الرئيسية
 # =============================
-@home.route("/kitchen/<int:id>")
-def kitchen_page(id):
-    kitchen = Kitchen.query.get_or_404(id)
+@home.route("/approve-chef/<int:user_id>")
+def approve_chef(user_id):
+    user = User.query.get_or_404(user_id)
+    user.status = "approved"
+    db.session.commit()
 
-    # 🔴 إذا المطبخ مغلق
-    if kitchen.is_open == 0:
-        return "❌ هذا المطبخ مغلق حالياً"
+    # إرسال إيميل للطاهية
+    if user.email:
+        msg = Message(
+            subject="تمت الموافقة على حسابك في BaytiCook",
+            recipients=[user.email],
+            body=f"""
+        مرحباً {user.name},
 
-    meals = Meal.query.filter(
-        Meal.kitchen_id == id,
-        Meal.status == "approved"
-    ).all()
+        مبروك! حسابك كمطبخ منزلي تمت الموافقة عليه من قبل الإدارة.
+        يمكنك الآن الدخول وإضافة أطباقك.
+
+        فريق BaytiCook
+        """
+        )
+        mail.send(msg)
+
+    flash("✅ تمّت الموافقة على الطاهية وإرسال رسالة عبر البريد الإلكتروني", "success")
+    return redirect(url_for("home.index"))
+
+# =============================
+# رفض الطاهية من الرئيسية
+# =============================
+@home.route("/reject-chef/<int:user_id>")
+def reject_chef(user_id):
+    user = User.query.get_or_404(user_id)
+    user.status = "rejected"
+    db.session.commit()
+
+    # إرسال إيميل للطاهية
+    if user.email:
+        msg = Message(
+            subject="تم رفض حسابك في BaytiCook",
+            recipients=[user.email],
+            body=f"""
+        مرحباً {user.name},
+
+        نعتذر، حسابك كمطبخ منزلي لم تتم الموافقة عليه حالياً.
+        يمكنك التواصل مع الإدارة لمزيد من التفاصيل.
+
+        فريق BaytiCook
+        """
+        )
+        mail.send(msg)
+
+    flash("❌ تم رفض الطاهية وإرسال رسالة عبر البريد الإلكتروني", "danger")
+    return redirect(url_for("home.index"))
+
+# =============================
+# جميع المطابخ
+# =============================
+@home.route("/all-kitchens")
+def all_kitchens():
+    try:
+        kitchens = Kitchen.query.filter(
+            Kitchen.is_open == 1,
+            Kitchen.status == "approved"
+        ).all()
+    except Exception as e:
+        return f"Database Error: {e}"
 
     cart_count = len(session.get("cart", {}))
 
     return render_template(
-        "main/kitchen_page.html",
-        kitchen=kitchen,
-        meals=meals,
+        "main/all_kitchens.html",
+        kitchens=kitchens,
         cart_count=cart_count
     )
-
-# =============================
-# البحث
-# =============================
-@home.route("/search")
-def search():
-    q = request.args.get("q")
-
-    if not q:
-        return redirect("/")
-
-    meals = Meal.query.join(Kitchen).filter(
-        (Meal.name.contains(q)) |
-        (Kitchen.kitchen_name.contains(q)),
-        Meal.status == "approved",
-        Kitchen.is_open == 1,
-        Kitchen.status == "approved"
-    ).all()
-
-    cart_count = len(session.get("cart", {}))
-
-    return render_template(
-        "main/search.html",
-        meals=meals,
-        query=q,
-        cart_count=cart_count
-    )
-
-# =============================
-# الطلب
-# =============================
-@home.route("/order/<int:meal_id>")
-def order_meal(meal_id):
-    meal = Meal.query.get_or_404(meal_id)
-    # هنا تضيفي منطق إنشاء الطلب أو صفحة تأكيد الطلب
-    return render_template("home/order_meal.html", meal=meal)

@@ -21,6 +21,9 @@ class Meal(db.Model):
     # 🟢 التمييز (0 = عادي، 1 = مميز)
     is_featured = db.Column(db.Integer, default=0)
 
+    # 🟢 التوفر اليومي (1 = متوفر، 0 = غير متوفر)
+    is_available = db.Column(db.Integer, default=1)
+
     def __repr__(self):
         return f"<Meal {self.name}>"
 
