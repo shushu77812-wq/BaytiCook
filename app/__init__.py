@@ -28,14 +28,14 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
 
-    # ✅ استدعاء الموديلات
+    # ✅ استيراد الموديلات (تأكد أن MealImage موجود في ملف واحد فقط)
     from app.models.kitchen_model import Kitchen
     from app.models.meal_model import Meal
+    from app.models.meal_image_model import MealImage
     from app.models.order_model import Order
     from app.models.order_item_model import OrderItem
     from app.models.user_model import User
     from app.models.password_reset_model import PasswordReset
-    from app.models.meal_image_model import MealImage   # 🖼️ موديل الصور الجديد
 
     # ✅ تسجيل الروترات
     from app.routes.home_routes import home
