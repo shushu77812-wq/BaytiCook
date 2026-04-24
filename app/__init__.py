@@ -35,6 +35,7 @@ def create_app():
     from app.models.order_item_model import OrderItem
     from app.models.user_model import User
     from app.models.password_reset_model import PasswordReset
+    from app.models.meal_image_model import MealImage   # 🖼️ موديل الصور الجديد
 
     # ✅ تسجيل الروترات
     from app.routes.home_routes import home
