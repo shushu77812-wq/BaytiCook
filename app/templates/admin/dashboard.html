@@ -2,11 +2,97 @@
 <html lang="ar" dir="rtl">
 
 <head>
-
 <meta charset="UTF-8">
 <title>لوحة التحكم</title>
 
-<link rel="stylesheet" href="/static/css/admin.css">
+<style>
+body{
+margin:0;
+font-family:Tahoma;
+background:#f5f6fa;
+direction:rtl;
+display:flex;
+}
+
+.admin-container{
+display:flex;
+width:100%;
+}
+
+.sidebar{
+width:220px;
+background:#1e272e;
+color:white;
+height:100vh;
+padding:20px;
+position:fixed;
+right:0;
+top:0;
+}
+
+.sidebar a{
+display:block;
+color:white;
+text-decoration:none;
+margin:15px 0;
+padding:10px;
+border-radius:6px;
+}
+
+.sidebar a:hover{ background:#ff6a00; }
+
+.content{
+margin-right:240px;
+padding:30px;
+width:100%;
+}
+
+h1{
+color:#333;
+margin-bottom:20px;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+text-align:center;
+border-top:4px solid #1e272e;
+}
+
+.card h3{
+margin:0;
+color:#444;
+}
+
+.card p{
+font-size:20px;
+font-weight:bold;
+color:#27ae60;
+margin-top:10px;
+}
+
+.flash-messages {
+    margin-bottom: 15px;
+}
+.alert {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 14px;
+}
+.alert-success { background: #d4edda; color: #155724; }
+.alert-danger { background: #f8d7da; color: #721c24; }
+.alert-warning { background: #fff3cd; color: #856404; }
+.alert-info    { background: #d1ecf1; color: #0c5460; }
+</style>
 
 </head>
 
@@ -15,40 +101,51 @@
 <div class="admin-container">
 
 <div class="sidebar">
-
 <h2>BaytiCook</h2>
-
-<a href="/admin">لوحة التحكم</a>
-<a href="/admin/chefs">الطاهيات</a>
-<a href="/admin/meals">الأكلات</a>
-<a href="/admin/orders">الطلبات</a>
+<a href="{{ url_for('admin.admin_dashboard') }}">لوحة التحكم</a>
+<a href="{{ url_for('admin.admin_chefs') }}">الطاهيات</a>
+<a href="{{ url_for('admin.kitchens') }}">المطابخ</a>
+<a href="{{ url_for('admin.admin_meals') }}">الأكلات</a>
+<a href="{{ url_for('admin.admin_order') }}">الطلبات</a>
 <a href="/">الموقع</a>
-
 </div>
 
 <div class="content">
+
+<!-- رسائل الفلاش -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
 <h1>لوحة تحكم الأدمن</h1>
 
 <div class="stats">
 
 <div class="card">
-<h3>الطاهيات</h3>
+<h3>👩‍🍳 الطاهيات</h3>
 <p>{{ chefs_count }}</p>
 </div>
 
 <div class="card">
-<h3>الأكلات</h3>
+<h3>🍽️ الأكلات</h3>
 <p>{{ meals_count }}</p>
 </div>
 
 <div class="card">
-<h3>الطلبات</h3>
+<h3>📦 الطلبات</h3>
 <p>{{ orders_count }}</p>
 </div>
 
 <div class="card">
-<h3>المستخدمين</h3>
+<h3>👥 المستخدمين</h3>
 <p>{{ users_count }}</p>
 </div>
 

@@ -93,7 +93,7 @@ body{
   <h2>👤 حسابي</h2>
   <a href="/">الرئيسية</a>
   <a href="/cart">السلة</a>
-  <a href="/my-orders">طلباتي</a> <!-- ✅ تعديل -->
+  <a href="/my-orders">طلباتي</a>
 </div>
 
 <div class="content">
@@ -113,7 +113,6 @@ body{
     {% elif order.status == 'delivered' %}delivered
     {% endif %}
   ">
-
     {% if order.status == "pending" %}
       ✅ تم الطلب
     {% elif order.status == "preparing" %}
@@ -121,10 +120,22 @@ body{
     {% elif order.status == "delivered" %}
       🚚 تم التوصيل
     {% endif %}
-
   </p>
 
   <p>💰 {{ order.total_price }} ريال</p>
+
+  <!-- طريقة الدفع -->
+  <p>💳 طريقة الدفع: 
+    {% if order.payment_method == "bank" %}
+      🏦 تحويل بنكي
+    {% elif order.payment_method == "cash" %}
+      💵 عند الاستلام
+    {% endif %}
+  </p>
+
+  <!-- موقع الطاهية / نقطة الاستلام -->
+  <p>📍 موقع الاستلام: {{ order.kitchen.location }}</p>
+  <p>🏠 العنوان: {{ order.kitchen.address }}</p>
 
   <!-- الأطباق -->
   <ul>
@@ -133,30 +144,26 @@ body{
     {% endfor %}
   </ul>
 
-  <!-- صورة التحويل -->
-  {% if order.proof_image %}
+  <!-- صورة التحويل (فقط عند الدفع البنكي) -->
+  {% if order.payment_method == 'bank' and order.proof_image %}
     <p>📷 صورة التحويل:</p>
     <img src="{{ url_for('static', filename='uploads/proofs/' + order.proof_image) }}" width="200">
   {% endif %}
 
   <!-- progress -->
   <div class="progress">
-
     <div class="step {% if order.status in ['pending','preparing','delivered'] %}active{% endif %}">
       <div class="circle"></div>
       <div class="label">تم الطلب</div>
     </div>
-
     <div class="step {% if order.status in ['preparing','delivered'] %}active{% endif %}">
       <div class="circle"></div>
       <div class="label">تحضير</div>
     </div>
-
     <div class="step {% if order.status == 'delivered' %}active{% endif %}">
       <div class="circle"></div>
       <div class="label">تم</div>
     </div>
-
   </div>
 
 </div>

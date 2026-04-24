@@ -3,24 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>تسجيل الدخول</title>
-    <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-    <form method="POST">
-        <h2>تسجيل الدخول</h2>
+    <div class="container">
+        <!-- عرض رسائل الفلاش -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
 
-        <label>رقم الهاتف</label>
-        <input type="text" name="phone" required>
-        <br><br>
+        <form method="POST">
+            <h2>تسجيل الدخول</h2>
 
-        <label>كلمة المرور</label>
-        <input type="password" name="password" required>
-        <br><br>
+            <label>رقم الهاتف</label>
+            <input type="text" name="phone" required>
+            <br><br>
 
-        <button type="submit">دخول</button>
+            <label>كلمة المرور</label>
+            <input type="password" name="password" required>
+            <br><br>
 
-        <br><br>
-        <a href="/forgot-password">نسيت كلمة المرور؟</a>
-    </form>
+            <button type="submit">دخول</button>
+
+            <br><br>
+            <a href="{{ url_for('auth.forgot_password') }}">نسيت كلمة المرور؟</a>
+        </form>
+    </div>
 </body>
 </html>

@@ -3,10 +3,9 @@
 
 <head>
 <meta charset="UTF-8">
-<title>إدارة المطابخ</title>
+<title>إدارة الطلبات</title>
 
 <style>
-
 body{
 margin:0;
 font-family:Tahoma;
@@ -54,7 +53,7 @@ width:100%;
 /* grid */
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
 gap:20px;
 }
 
@@ -64,15 +63,15 @@ background:white;
 padding:15px;
 border-radius:10px;
 box-shadow:0 3px 10px rgba(0,0,0,0.1);
-text-align:center;
 }
 
-.card img{
-width:100%;
-height:150px;
-object-fit:cover;
-border-radius:8px;
-margin-bottom:10px;
+.card h3{
+margin:0;
+color:#333;
+}
+
+.card p{
+margin:8px 0;
 }
 
 .btn{
@@ -82,72 +81,79 @@ padding:8px 15px;
 border-radius:6px;
 color:white;
 text-decoration:none;
+font-size:14px;
 }
 
-.feature{background:#27ae60;}
-.unfeature{background:#e74c3c;}
+.pending{background:#f39c12;}
+.processing{background:#2980b9;}
+.completed{background:#27ae60;}
+.cancelled{background:#e74c3c;}
 
+.flash-messages {
+    margin-bottom: 15px;
+}
+.alert {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 14px;
+}
+.alert-success { background: #d4edda; color: #155724; }
+.alert-danger { background: #f8d7da; color: #721c24; }
+.alert-warning { background: #fff3cd; color: #856404; }
+.alert-info    { background: #d1ecf1; color: #0c5460; }
 </style>
-
 </head>
 
 <body>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-
 <h2>BaytiCook</h2>
-
-<a href="/admin">لوحة التحكم</a>
-<a href="/admin/chefs">الطاهيات</a>
-<a href="/admin/kitchens">المطابخ</a>
-<a href="/admin/meals">الأكلات</a>
-<a href="/admin/orders">الطلبات</a>
+<a href="{{ url_for('admin.admin_dashboard') }}">لوحة التحكم</a>
+<a href="{{ url_for('admin.admin_chefs') }}">الطاهيات</a>
+<a href="{{ url_for('admin.kitchens') }}">المطابخ</a>
+<a href="{{ url_for('admin.admin_meals') }}">الأكلات</a>
+<a href="{{ url_for('admin.admin_order') }}">الطلبات</a>
 <a href="/">الموقع</a>
-
 </div>
 
 <!-- CONTENT -->
 <div class="content">
 
-<h2>إدارة المطابخ</h2>
+<!-- رسائل الفلاش -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<h2>إدارة الطلبات</h2>
 
 <div class="grid">
 
-{% for kitchen in kitchens %}
-
+{% for order in orders %}
 <div class="card">
+  <h3>📦 الطلب رقم {{ order.id }}</h3>
+  <p>👤 الزبون: {{ order.user.name if order.user else "غير معروف" }}</p>
+  <p>🍳 المطبخ: {{ order.kitchen.kitchen_name if order.kitchen else "-" }}</p>
+  <p>📱 الهاتف: {{ order.user.phone if order.user else "-" }}</p>
+  <p>📍 العنوان: {{ order.address }}</p>
+  <p>💵 المبلغ: {{ order.total_price }} ريال</p>
+  <p>الحالة الحالية: <strong>{{ order.status }}</strong></p>
 
-<img src="/static/uploads/{{ kitchen.kitchen_logo }}">
-
-<h3>{{ kitchen.kitchen_name }}</h3>
-
-<p>👤 {{ kitchen.user.name if kitchen.user else "غير معروف" }}</p>
-
-<p>📱 {{ kitchen.user.phone if kitchen.user else "-" }}</p>
-
-<p>📍 {{ kitchen.location }}</p>
-
-<p>
-{% if kitchen.featured %}
-⭐ مميز
-{% else %}
-عادي
-{% endif %}
-</p>
-
-{% if kitchen.featured %}
-<a class="btn unfeature" href="/admin/toggle-feature/{{ kitchen.id }}">
-إلغاء التمييز
-</a>
-{% else %}
-<a class="btn feature" href="/admin/toggle-feature/{{ kitchen.id }}">
-تمييز ⭐
-</a>
-{% endif %}
-
+  <!-- أزرار تحديث الحالة -->
+  <a class="btn pending" href="{{ url_for('admin.update_order_status', order_id=order.id, status='pending') }}">قيد الانتظار</a>
+  <a class="btn processing" href="{{ url_for('admin.update_order_status', order_id=order.id, status='processing') }}">قيد التنفيذ</a>
+  <a class="btn completed" href="{{ url_for('admin.update_order_status', order_id=order.id, status='completed') }}">مكتمل ✅</a>
+  <a class="btn cancelled" href="{{ url_for('admin.update_order_status', order_id=order.id, status='cancelled') }}">ملغي ❌</a>
 </div>
-
 {% endfor %}
 
 </div>

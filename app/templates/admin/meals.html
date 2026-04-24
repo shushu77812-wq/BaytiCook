@@ -5,88 +5,148 @@
 <meta charset="UTF-8">
 <title>إدارة الأكلات</title>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-
 <style>
+/* إعدادات عامة */
+body {
+  margin: 0;
+  font-family: Tahoma, sans-serif;
+  background: #f5f6fa;
+  direction: rtl;
+  display: flex;
+}
+
+.admin-container {
+  display: flex;
+  width: 100%;
+}
+
+/* الشريط الجانبي */
+.sidebar {
+  width: 220px;
+  background: #1e272e;
+  color: white;
+  height: 100vh;
+  padding: 20px;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.sidebar a:hover {
+  background: #ff6a00;
+}
+
+/* المحتوى */
+.content {
+  margin-right: 240px;
+  padding: 30px;
+  width: 100%;
+}
 
 /* GRID */
-.meals-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-  gap:20px;
-  margin-top:20px;
+.meals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+  gap: 20px;
+  margin-top: 20px;
 }
 
 /* CARD */
-.meal-card{
-  background:white;
-  border-radius:12px;
-  padding:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
-  text-align:center;
-  transition:0.3s;
+.meal-card {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: 0.3s;
 }
 
-.meal-card:hover{
-  transform:translateY(-5px);
+.meal-card:hover {
+  transform: translateY(-5px);
 }
 
 /* IMAGE */
-.meal-card img{
-  width:100%;
-  height:160px;
-  object-fit:cover;
-  border-radius:10px;
+.meal-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 /* TITLE */
-.meal-card h3{
-  margin:10px 0;
-  font-size:18px;
+.meal-card h3 {
+  margin: 10px 0;
+  font-size: 18px;
 }
 
 /* DESCRIPTION */
-.desc{
-  font-size:14px;
-  color:#555;
-  height:40px;
-  overflow:hidden;
+.desc {
+  font-size: 14px;
+  color: #555;
+  height: 40px;
+  overflow: hidden;
 }
 
 /* PRICE */
-.price{
-  color:#27ae60;
-  font-weight:bold;
-  margin-top:5px;
+.price {
+  color: #27ae60;
+  font-weight: bold;
+  margin-top: 5px;
 }
 
 /* KITCHEN */
-.kitchen{
-  font-size:13px;
-  color:#777;
+.kitchen {
+  font-size: 13px;
+  color: #777;
 }
 
 /* ACTIONS */
-.actions{
-  margin-top:10px;
+.actions {
+  margin-top: 10px;
 }
 
 /* BUTTONS */
-.btn{
-  padding:6px 10px;
-  border-radius:6px;
-  color:white;
-  text-decoration:none;
-  font-size:13px;
-  margin:3px;
-  display:inline-block;
+.btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  margin: 3px;
+  display: inline-block;
 }
 
-.edit{background:#3498db;}
-.delete{background:#e74c3c;}
+.edit { background: #3498db; }
+.delete { background: #e74c3c; }
 
+/* رسائل الفلاش */
+.flash-messages {
+  margin-bottom: 15px;
+}
+.alert {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  font-size: 14px;
+}
+.alert-success { background: #d4edda; color: #155724; }
+.alert-danger { background: #f8d7da; color: #721c24; }
+.alert-warning { background: #fff3cd; color: #856404; }
+.alert-info    { background: #d1ecf1; color: #0c5460; }
 </style>
-
 </head>
 
 <body>
@@ -96,15 +156,28 @@
 <!-- SIDEBAR -->
 <div class="sidebar">
   <h2>BaytiCook</h2>
-  <a href="/admin">لوحة التحكم</a>
-  <a href="/admin/chefs">الطاهيات</a>
-  <a href="/admin/meals">الأكلات</a>
-  <a href="/admin/orders">الطلبات</a>
+  <a href="{{ url_for('admin.admin_dashboard') }}">لوحة التحكم</a>
+  <a href="{{ url_for('admin.admin_chefs') }}">الطاهيات</a>
+  <a href="{{ url_for('admin.admin_meals') }}">الأكلات</a>
+  <a href="{{ url_for('admin.admin_order') }}">الطلبات</a>
   <a href="/">الموقع</a>
 </div>
 
 <!-- CONTENT -->
 <div class="content">
+
+<!-- رسائل الفلاش -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
 <h1>🍲 إدارة الأكلات</h1>
 
@@ -140,10 +213,10 @@
 
   <!-- أزرار -->
   <div class="actions">
-    <a href="/admin/edit-meal/{{ meal.id }}" class="btn edit">تعديل</a>
-    <a href="/admin/delete-meal/{{ meal.id }}" class="btn delete"
+    <a href="{{ url_for('admin.edit_meal', meal_id=meal.id) }}" class="btn edit">✏️ تعديل</a>
+    <a href="{{ url_for('admin.delete_meal', meal_id=meal.id) }}" class="btn delete"
        onclick="return confirm('هل أنت متأكد من الحذف؟')">
-       حذف
+       🗑️ حذف
     </a>
   </div>
 

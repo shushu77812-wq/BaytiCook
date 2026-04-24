@@ -4,40 +4,19 @@
   <meta charset="UTF-8">
   <title>إدارة الأطباق</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/chefs.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body { font-family: Tahoma, sans-serif; background:#f4f4f4; margin:0; }
-    .sidebar { width:220px; background:#333; color:#fff; padding:20px; float:right; height:100vh; }
-    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; }
-    .sidebar a:hover { background:#444; }
-    .content { margin-right:240px; padding:20px; }
+    .container { display:flex; }
+    .sidebar { width:220px; background:#333; color:#fff; padding:20px; height:100vh; }
+    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; border-radius:6px; }
+    .sidebar a:hover { background:#ff6a00; }
+    .content { flex:1; padding:20px; }
 
-    .add-form {
-      background:#fff;
-      padding:20px;
-      border-radius:10px;
-      margin-bottom:20px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.1);
-    }
-    .add-form input, .add-form textarea {
-      width:100%;
-      padding:10px;
-      margin:10px 0;
-      border:1px solid #ccc;
-      border-radius:6px;
-    }
-    .add-form button {
-      background:#27ae60;
-      color:white;
-      padding:10px 20px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    }
-    .add-form button:hover { background:#219150; }
+    .success-alert { background:#d4edda; padding:15px; border:1px solid #c3e6cb; margin-bottom:20px; border-radius:8px; }
+    .alert { background:#fff3cd; padding:15px; border:1px solid #ffeeba; margin-bottom:20px; border-radius:8px; }
 
-    .search-box {
-      margin-bottom:20px;
-    }
+    .search-box { margin-bottom:20px; }
     .search-box input {
       padding:10px;
       width:60%;
@@ -53,16 +32,18 @@
       cursor:pointer;
     }
 
+    .card { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 3px 10px rgba(0,0,0,0.1); }
+
     .meals-grid {
       display:grid;
       grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
       gap:20px;
     }
     .meal-card {
-      background:#fff;
+      background:#f9f9f9;
       padding:15px;
       border-radius:10px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.1);
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
       text-align:center;
     }
     .meal-card h3 { margin:10px 0; }
@@ -93,69 +74,83 @@
   </style>
 </head>
 <body>
-<div class="sidebar">
-  <h2>👩‍🍳 لوحة الطاهية</h2>
-  <a href="/dashboard">الرئيسية</a>
-  <a href="/meals">الأطباق</a>
-  <a href="/orders">الطلبات</a>
-  <a href="/logout">تسجيل خروج</a>
-</div>
+<div class="container">
 
-<div class="content">
-  <h1>🍲 إدارة الأطباق</h1>
-
-  <!-- بحث عن الأطباق -->
-  <div class="search-box">
-    <form method="GET" action="/meals">
-      <input type="text" name="q" placeholder="🔍 ابحث عن طبق...">
-      <button type="submit">بحث</button>
-    </form>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>👩‍🍳 لوحة الطاهية</h2>
+    <a href="/dashboard"><i class="fa fa-home"></i> الرئيسية</a>
+    <a href="/meals"><i class="fa fa-utensils"></i> الأطباق</a>
+    <a href="/orders"><i class="fa fa-receipt"></i> الطلبات</a>
+    <a href="/logout"><i class="fa fa-sign-out-alt"></i> تسجيل خروج</a>
+    <a href="{{ url_for('home.index') }}">🏠 العودة للموقع</a>
   </div>
 
-  <!-- نموذج إضافة طبق جديد -->
-  <div class="add-form">
-    <h3>➕ إضافة طبق جديد</h3>
-    <form method="POST" enctype="multipart/form-data">
-      <label>🍲 اسم الطبق</label>
-      <input type="text" name="name" placeholder="مثال: كبسة دجاج" required>
+  <!-- CONTENT -->
+  <div class="content">
+    <h1>🍲 إدارة الأطباق</h1>
 
-      <label>📝 الوصف</label>
-      <textarea name="description" rows="4" placeholder="اكتب وصف الطبق هنا..." required></textarea>
-
-      <label>💰 السعر</label>
-      <input type="number" name="price" placeholder="مثال: 25" required>
-
-      <label>📸 صور الطبق</label>
-      <input type="file" name="images" accept="image/*" multiple>
-
-      <button type="submit">إضافة الطبق</button>
-    </form>
-  </div>
-
-  <!-- قائمة الأطباق -->
-  <div class="meals-grid">
-    {% for meal in meals %}
-    <div class="meal-card">
-      {% if meal.images %}
-        <div class="meal-images">
-          {% for img in meal.images %}
-            <img src="{{ url_for('static', filename='uploads/' ~ img.image) }}" alt="صورة الطبق">
-          {% endfor %}
-        </div>
+    <!-- رسائل الفلاش -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="success-alert">{{ message }}</div>
+        {% endfor %}
       {% endif %}
-      <h3>{{ meal.name }}</h3>
-      <p>{{ meal.description }}</p>
-      <p>💰 {{ meal.price }} ريال</p>
-      <p>الحالة: {% if meal.is_available %} ✅ متاح {% else %} ❌ غير متاح {% endif %}</p>
+    {% endwith %}
 
-      <a href="/meals/view/{{ meal.id }}" class="btn view">👁️ عرض</a>
-      <a href="/meals/edit/{{ meal.id }}" class="btn edit">✏️ تعديل</a>
-      <a href="/meals/delete/{{ meal.id }}" class="btn delete"
-         onclick="return confirm('هل أنت متأكد من حذف هذا الطبق؟')">🗑️ حذف</a>
+    <!-- بحث عن الأطباق -->
+    <div class="card search-box">
+      <form method="GET" action="/meals">
+        <input type="text" name="q" placeholder="🔍 ابحث عن طبق...">
+        <button type="submit">بحث</button>
+      </form>
     </div>
-    {% endfor %}
+
+    <!-- نموذج إضافة طبق جديد -->
+    <div class="card">
+      <h3>➕ إضافة طبق جديد</h3>
+      <form method="POST" enctype="multipart/form-data">
+        <label>🍲 اسم الطبق</label>
+        <input type="text" name="name" placeholder="مثال: كبسة دجاج" required>
+
+        <label>📝 الوصف</label>
+        <textarea name="description" rows="4" placeholder="اكتب وصف الطبق هنا..." required></textarea>
+
+        <label>💰 السعر</label>
+        <input type="number" name="price" placeholder="مثال: 25" required>
+
+        <label>📸 صور الطبق</label>
+        <input type="file" name="images" accept="image/*" multiple>
+
+        <button type="submit">إضافة الطبق</button>
+      </form>
+    </div>
+
+    <!-- قائمة الأطباق -->
+    <div class="meals-grid">
+      {% for meal in meals %}
+      <div class="meal-card">
+        {% if meal.images %}
+          <div class="meal-images">
+            {% for img in meal.images %}
+              <img src="{{ url_for('static', filename='uploads/' ~ img.image) }}" alt="صورة الطبق">
+            {% endfor %}
+          </div>
+        {% endif %}
+        <h3>{{ meal.name }}</h3>
+        <p>{{ meal.description }}</p>
+        <p>💰 {{ meal.price }} ريال</p>
+        <p>الحالة: {% if meal.is_available %} ✅ متاح {% else %} ❌ غير متاح {% endif %}</p>
+
+        <a href="/meals/view/{{ meal.id }}" class="btn view">👁️ عرض</a>
+        <a href="/meals/edit/{{ meal.id }}" class="btn edit">✏️ تعديل</a>
+        <a href="/meals/delete/{{ meal.id }}" class="btn delete"
+           onclick="return confirm('هل أنت متأكد من حذف هذا الطبق؟')">🗑️ حذف</a>
+      </div>
+      {% endfor %}
+    </div>
   </div>
 </div>
 </body>
 </html>
-

@@ -7,7 +7,7 @@
   <style>
     body { font-family: Tahoma, sans-serif; background:#f4f4f4; margin:0; }
     .sidebar { width:220px; background:#333; color:#fff; padding:20px; float:right; height:100vh; }
-    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; }
+    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; border-radius:6px; }
     .sidebar a:hover { background:#444; }
     .content { margin-right:240px; padding:20px; }
 
@@ -78,7 +78,7 @@
       <label>اسم المطبخ</label>
       <input type="text" name="kitchen_name" required>
 
-      <!-- شعار المطبخ (متوافق مع الموديل: kitchen_logo) -->
+      <!-- شعار المطبخ -->
       <label>شعار المطبخ</label>
       <input type="file" name="kitchen_logo" accept="image/*" required onchange="previewLogo(event)">
       <div class="preview" id="logoPreview"></div>
@@ -92,6 +92,14 @@
 
       <label>الحساب البنكي</label>
       <input type="text" name="bank_account_number" class="small-input">
+
+      <!-- الموقع العام -->
+      <label>الموقع</label>
+      <input type="text" name="location" placeholder="مثال: مأرب - المدينة" required>
+
+      <!-- العنوان التفصيلي -->
+      <label>العنوان التفصيلي / نقطة الاستلام</label>
+      <input type="text" name="address" placeholder="مثال: بجانب مستشفى مأرب العام" required>
 
       <!-- وصف المطبخ -->
       <label>وصف المطبخ</label>

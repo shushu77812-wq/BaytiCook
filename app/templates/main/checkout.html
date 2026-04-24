@@ -1,23 +1,15 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
 <meta charset="UTF-8">
 <title>الدفع</title>
-
 <style>
 body {
     font-family: Tahoma, sans-serif;
     background:#f8f9fa;
     padding:20px;
 }
-
-h2 {
-    text-align:center;
-    margin-bottom:20px;
-}
-
-/* صندوق المطبخ */
+h2 { text-align:center; margin-bottom:20px; }
 .kitchen-box {
     border:1px solid #ddd;
     margin:15px auto;
@@ -27,78 +19,75 @@ h2 {
     max-width:700px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
-
-.kitchen-box h3 {
-    margin-bottom:10px;
+.kitchen-box h3 { margin-bottom:10px; }
+.item { border-bottom:1px solid #eee; padding:10px 0; }
+label { font-weight:bold; display:block; margin-top:10px; }
+select, input[type="file"] {
+    width:100%; padding:8px; margin-top:5px;
+    border:1px solid #ccc; border-radius:6px;
 }
-
-.item {
-    border-bottom:1px solid #eee;
-    padding:10px 0;
-}
-
-/* زر */
 button {
-    background:#28a745;
-    color:white;
-    border:none;
-    padding:12px 20px;
-    border-radius:8px;
-    cursor:pointer;
-    margin-top:20px;
-    font-size:16px;
-    width:100%;
+    background:#28a745; color:white; border:none;
+    padding:12px 20px; border-radius:8px; cursor:pointer;
+    margin-top:20px; font-size:16px; width:100%;
 }
-
-button:hover {
-    background:#218838;
-}
+button:hover { background:#218838; }
+.empty { text-align:center; color:gray; margin-top:50px; }
 </style>
-
 </head>
-
 <body>
 
 <h2>💳 الدفع</h2>
 
-{% if meals %}
-
-    {% for meal in meals %}
+{% if grouped_cart %}
+<form method="POST" action="/create-order" enctype="multipart/form-data">
+    {% for kitchen_id, items in grouped_cart.items() %}
     <div class="kitchen-box">
-
         <!-- اسم المطبخ -->
-        <h3>🍳 {{ meal.kitchen.kitchen_name }}</h3>
+        <h3>🍳 {{ items[0].meal.kitchen.kitchen_name }}</h3>
 
-        <!-- بيانات الطبق -->
+        <!-- بيانات الأطباق -->
+        {% for item in items %}
         <div class="item">
-            <p>🍽 {{ meal.name }}</p>
-            <p>الكمية: {{ meal.quantity }}</p>
-            <p>الإجمالي: {{ meal.price * meal.quantity }} ريال</p>
+            <p>🍽 {{ item.meal.name }}</p>
+            <p>الكمية: {{ item.quantity }}</p>
+            <p>الإجمالي: {{ item.subtotal }} ريال</p>
         </div>
+        {% endfor %}
 
         <hr>
 
-        <!-- بيانات التحويل -->
-        <h4>🏦 بيانات التحويل</h4>
-        <p>👩‍🍳 {{ meal.kitchen.user.name if meal.kitchen.user else "-" }}</p>
-        <p>📞 {{ meal.kitchen.user.phone if meal.kitchen.user else "-" }}</p>
-        <p>💳 {{ meal.kitchen.bank_account_number }}</p>
+        <!-- بيانات الطاهية -->
+        <h4>👩‍🍳 بيانات الطاهية</h4>
+        <p>الاسم: {{ items[0].meal.kitchen.chef_name }}</p>
+        <p>📞 الهاتف: {{ items[0].meal.kitchen.chef_phone }}</p>
+        <p>📍 الموقع: {{ items[0].meal.kitchen.location }}</p>
+        <p>🏠 العنوان: {{ items[0].meal.kitchen.address }}</p>
 
-        <!-- رفع الإيصال (شكلي فقط) -->
-        <input type="file" name="proof" accept="image/*">
+        <hr>
 
+        <!-- اختيار طريقة الدفع -->
+        <label>طريقة الدفع:</label>
+        <select name="payment_method_{{ kitchen_id }}">
+            <option value="bank">🏦 تحويل بنكي</option>
+            <option value="cash">💵 عند الاستلام</option>
+        </select>
+
+        <!-- بيانات التحويل البنكي -->
+        <div>
+            <p>💳 الحساب البنكي: {{ items[0].meal.kitchen.bank_account_number }}</p>
+            <label>رفع إيصال التحويل:</label>
+            <input type="file" name="proof_{{ kitchen_id }}" accept="image/*">
+        </div>
     </div>
     {% endfor %}
 
     <!-- زر تأكيد -->
-    <form method="POST" action="/checkout" enctype="multipart/form-data">
-        <button type="submit">✅ تأكيد الطلب</button>
-    </form>
+    <button type="submit">✅ تأكيد الطلب</button>
+</form>
 
 {% else %}
-
-    <p style="text-align:center;">😢 لا يوجد عناصر للدفع</p>
-
+    <p class="empty">😢 لا يوجد عناصر للدفع</p>
 {% endif %}
 
 </body>

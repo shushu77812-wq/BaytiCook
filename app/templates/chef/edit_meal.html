@@ -4,27 +4,25 @@
   <meta charset="UTF-8">
   <title>تعديل الطبق</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/chefs.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body { font-family: Tahoma, sans-serif; background:#f4f4f4; margin:0; }
-    .sidebar { width:220px; background:#333; color:#fff; padding:20px; float:right; height:100vh; }
-    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; }
-    .sidebar a:hover { background:#444; }
-    .content { margin-right:240px; padding:20px; }
-    .edit-form {
-      background:#fff;
-      padding:20px;
-      border-radius:10px;
-      margin-bottom:20px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.1);
-    }
-    .edit-form input, .edit-form textarea {
+    .container { display:flex; }
+    .sidebar { width:220px; background:#333; color:#fff; padding:20px; height:100vh; }
+    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; border-radius:6px; }
+    .sidebar a:hover { background:#ff6a00; }
+    .content { flex:1; padding:20px; }
+
+    .card { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 3px 10px rgba(0,0,0,0.1); }
+
+    .card input, .card textarea {
       width:100%;
       padding:10px;
       margin:10px 0;
       border:1px solid #ccc;
       border-radius:6px;
     }
-    .edit-form button {
+    .card button {
       background:#3498db;
       color:white;
       padding:10px 20px;
@@ -32,7 +30,8 @@
       border-radius:6px;
       cursor:pointer;
     }
-    .edit-form button:hover { background:#2980b9; }
+    .card button:hover { background:#2980b9; }
+
     .images-grid {
       display:grid;
       grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
@@ -58,13 +57,16 @@
   </style>
 </head>
 <body>
+<div class="container">
+
   <!-- Sidebar -->
   <div class="sidebar">
     <h2>👩‍🍳 لوحة الطاهية</h2>
-    <a href="/dashboard">الرئيسية</a>
-    <a href="/meals">الأطباق</a>
-    <a href="/orders">الطلبات</a>
-    <a href="/logout">تسجيل خروج</a>
+    <a href="/dashboard"><i class="fa fa-home"></i> الرئيسية</a>
+    <a href="/meals"><i class="fa fa-utensils"></i> الأطباق</a>
+    <a href="/orders"><i class="fa fa-receipt"></i> الطلبات</a>
+    <a href="/logout"><i class="fa fa-sign-out-alt"></i> تسجيل خروج</a>
+    <a href="{{ url_for('home.index') }}">🏠 العودة للموقع</a>
   </div>
 
   <!-- Content -->
@@ -72,7 +74,7 @@
     <h1>✏️ تعديل الطبق: {{ meal.name }}</h1>
 
     <!-- نموذج تعديل الطبق -->
-    <div class="edit-form">
+    <div class="card">
       <form method="POST" enctype="multipart/form-data">
         <label>اسم الطبق</label>
         <input type="text" name="name" value="{{ meal.name }}" required>
@@ -91,16 +93,19 @@
     </div>
 
     <!-- الصور الحالية -->
-    <h3>📸 الصور الحالية</h3>
-    <div class="images-grid">
-      {% for img in meal.images %}
-        <div>
-          <img src="{{ url_for('static', filename='uploads/' ~ img.image) }}" alt="صورة الطبق">
-          <a href="/meals/delete-image/{{ img.id }}" class="btn-delete"
-             onclick="return confirm('هل أنت متأكد من حذف هذه الصورة؟')">🗑️ حذف</a>
-        </div>
-      {% endfor %}
+    <div class="card">
+      <h3>📸 الصور الحالية</h3>
+      <div class="images-grid">
+        {% for img in meal.images %}
+          <div>
+            <img src="{{ url_for('static', filename='uploads/' ~ img.image) }}" alt="صورة الطبق">
+            <a href="/meals/delete-image/{{ img.id }}" class="btn-delete"
+               onclick="return confirm('هل أنت متأكد من حذف هذه الصورة؟')">🗑️ حذف</a>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
+</div>
 </body>
 </html>

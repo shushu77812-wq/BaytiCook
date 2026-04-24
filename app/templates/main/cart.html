@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
 <meta charset="UTF-8">
 <title>السلة</title>
-
 <style>
-/* نفس تصميمك بدون تغيير */
 body{
     font-family:Tahoma;
     background:#dbcfcf;
@@ -53,47 +50,50 @@ h2{text-align:center;}
 .subtotal{text-align:right;font-weight:bold;margin-top:10px;}
 </style>
 </head>
-
 <body>
 
 <h2>🛒 السلة</h2>
 
 <div class="cart-box">
 
-{% if meals %}
-
-    {% for meal in meals %}
-
-    <div class="item">
-
-        {% if meal.images %}
-            <img src="{{ url_for('static', filename='uploads/' + meal.images[0].image) }}">
-        {% else %}
-            <img src="{{ url_for('static', filename='uploads/no-image.png') }}">
-        {% endif %}
-
-        <div class="info">
-            <h3>{{ meal.name }}</h3>
-            <p>الكمية: {{ meal.quantity }}</p>
-            <p>الإجمالي: {{ meal.price * meal.quantity }} ريال</p>
+{% if grouped_cart %}
+    {% for kitchen_id, items in grouped_cart.items() %}
+        <div class="kitchen-title">
+            {% if items[0].meal.kitchen.kitchen_logo %}
+                <img src="{{ url_for('static', filename='uploads/' ~ items[0].meal.kitchen.kitchen_logo) }}">
+            {% endif %}
+            <span>مطبخ {{ items[0].meal.kitchen.kitchen_name }}</span>
         </div>
 
-        <div class="actions">
-            <a href="/remove-from-cart/{{ meal.id }}">❌</a>
+        {% for item in items %}
+        <div class="item">
+            {% if item.meal.images %}
+                <img src="{{ url_for('static', filename='uploads/' ~ item.meal.images[0].image) }}">
+            {% else %}
+                <img src="{{ url_for('static', filename='uploads/no-image.png') }}">
+            {% endif %}
+
+            <div class="info">
+                <h3>{{ item.meal.name }}</h3>
+                <p>الكمية: {{ item.quantity }}</p>
+                <p>الإجمالي: {{ item.subtotal }} ريال</p>
+            </div>
+
+            <div class="actions">
+                <a href="/remove/{{ item.meal.id }}">❌</a>
+                <a href="/update/{{ item.meal.id }}/plus">➕</a>
+                <a href="/update/{{ item.meal.id }}/minus">➖</a>
+            </div>
         </div>
-
-    </div>
-
+        {% endfor %}
     {% endfor %}
 
     <div class="total">
-        الإجمالي الكلي: {{ total_price }} ريال
+        الإجمالي الكلي: {{ total }} ريال
     </div>
 
-    <form method="POST" action="/checkout">
-        <button type="submit" class="checkout">
-            تأكيد الطلب
-        </button>
+    <form method="POST" action="/create-order">
+        <button type="submit" class="checkout">تأكيد الطلب</button>
     </form>
 
     <a href="/" class="back">⬅ الرجوع</a>

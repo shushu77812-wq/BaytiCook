@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, redirect, session, url_for
+from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 from app import db
 from app.models.user_model import User
 from app.models.password_reset_model import PasswordReset
-from app.models.kitchen_model import Kitchen   
+from app.models.kitchen_model import Kitchen
 import random
 
 auth = Blueprint("auth", __name__)
@@ -24,15 +24,20 @@ def register():
         if role == "chef":
             status = "pending"
 
+        # تحقق من رقم الهاتف
         existing_user = User.query.filter_by(phone=phone).first()
         if existing_user:
-            return "رقم الهاتف مستخدم بالفعل"
+            flash("📱 رقم الهاتف مستخدم بالفعل.", "danger")
+            return redirect(url_for("auth.register"))
 
+        # تحقق من البريد الإلكتروني
         if email:
             existing_user = User.query.filter_by(email=email).first()
             if existing_user:
-                return "البريد الإلكتروني مستخدم بالفعل"
+                flash("📧 البريد الإلكتروني مستخدم بالفعل.", "danger")
+                return redirect(url_for("auth.register"))
 
+        # إنشاء مستخدم جديد
         new_user = User(
             name=name,
             email=email if email else None,
@@ -48,10 +53,11 @@ def register():
         if role == "customer":
             session["user_id"] = new_user.id
             session["role"] = new_user.role
-     
+            flash("✅ تم إنشاء الحساب بنجاح!", "success")
             return redirect(url_for("home.index"))
 
-        return "تم إرسال طلبك للإدارة للموافقة"
+        flash("⏳ تم إرسال طلبك للإدارة للموافقة.", "info")
+        return redirect(url_for("auth.login"))
 
     return render_template("register.html")
 
@@ -69,14 +75,16 @@ def login():
 
         if user and user.check_password(password):
 
-            # ❌ لا نحفظ الجلسة قبل التحقق
+            # التحقق من حالة الحساب
             if user.status == "pending":
-                return "⏳ حسابك بانتظار الموافقة، سيتم تحديثه تلقائيًا"
+                flash("⏳ حسابك بانتظار موافقة الأدمن.", "warning")
+                return redirect(url_for("auth.login"))
 
             elif user.status == "rejected":
-                return "❌ حسابك مرفوض، تواصل مع الإدارة"
+                flash("❌ حسابك مرفوض، تواصل مع الإدارة.", "danger")
+                return redirect(url_for("auth.login"))
 
-            # ✅ نحفظ الجلسة بعد التأكد
+            # ✅ حفظ الجلسة بعد التأكد
             session["user_id"] = user.id
             session["role"] = user.role
 
@@ -84,20 +92,27 @@ def login():
             if user.role == "chef":
                 kitchen = Kitchen.query.filter_by(user_id=user.id).first()
                 if kitchen:
+                    flash("👩‍🍳 مرحبًا بك في لوحة التحكم!", "success")
                     return redirect(url_for("chef.dashboard"))
                 else:
+                    flash("✨ أنشئ مطبخك الأول الآن!", "info")
                     return redirect(url_for("chef.create_kitchen"))
 
             elif user.role == "admin":
+                flash("🔧 مرحبًا بك في لوحة الأدمن.", "success")
                 return redirect("/admin")
 
-            else:
+            else:  # customer
+                flash("🍽️ أهلاً بك في BaytiCook!", "success")
                 return redirect(url_for("home.index"))
 
         else:
-            return "الرقم أو كلمة المرور غير صحيحة"
+            flash("⚠️ الرقم أو كلمة المرور غير صحيحة.", "danger")
+            return redirect(url_for("auth.login"))
 
     return render_template("login.html")
+
+
 # ----------------------
 # نسيت كلمة المرور - إرسال رمز
 # ----------------------
@@ -107,7 +122,8 @@ def forgot_password():
         phone = request.form.get("phone")
         user = User.query.filter_by(phone=phone).first()
         if not user:
-            return "لا يوجد حساب بهذا الرقم"
+            flash("❌ لا يوجد حساب بهذا الرقم.", "danger")
+            return redirect(url_for("auth.forgot_password"))
 
         code = f"{random.randint(100000, 999999)}"
 
@@ -119,6 +135,7 @@ def forgot_password():
         db.session.add(pr)
         db.session.commit()
 
+        flash("📩 تم إرسال رمز التحقق، أدخله لتغيير كلمة المرور.", "info")
         return render_template("home/enter_otp.html", phone=phone)
 
     return render_template("home/forgot_password.html")
@@ -135,23 +152,30 @@ def verify_otp():
 
     user = User.query.filter_by(phone=phone).first()
     if not user:
-        return "رقم غير موجود"
+        flash("❌ رقم غير موجود.", "danger")
+        return redirect(url_for("auth.forgot_password"))
 
     pr = PasswordReset.query.filter_by(
         user_id=user.id, code=code, used=False
     ).order_by(PasswordReset.expires_at.desc()).first()
 
     if not pr or not pr.is_valid():
-        return "الرمز غير صحيح أو منتهي الصلاحية"
+        flash("⚠️ الرمز غير صحيح أو منتهي الصلاحية.", "danger")
+        return redirect(url_for("auth.forgot_password"))
 
     user.set_password(new_password)
     pr.used = True
     db.session.commit()
 
-    return "تم تحديث كلمة المرور، يمكنك تسجيل الدخول الآن"
+    flash("✅ تم تحديث كلمة المرور، يمكنك تسجيل الدخول الآن.", "success")
+    return redirect(url_for("auth.login"))
 
+
+# ----------------------
+# تسجيل خروج
+# ----------------------
 @auth.route("/logout")
 def logout():
-    # تنظيف السيشن
     session.clear()
+    flash("👋 تم تسجيل الخروج بنجاح.", "info")
     return redirect(url_for("home.index"))

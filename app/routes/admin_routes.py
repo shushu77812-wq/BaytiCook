@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for
-from app import db
+from flask import Blueprint, render_template, redirect, url_for, flash
+from app import db, mail
 from app.models.user_model import User
 from app.models.meal_model import Meal
 from app.models.order_model import Order
 from app.models.kitchen_model import Kitchen
+from flask_mail import Message
 
 admin = Blueprint("admin", __name__)
 
@@ -29,13 +30,25 @@ def admin_chefs():
     chefs = User.query.filter_by(role="chef").all()
     return render_template("admin/chefs.html", chefs=chefs)
 
+# إرسال إيميل الموافقة
+def send_approval_email(user):
+    if user.email:
+        msg = Message(
+            subject="تمت الموافقة على حسابك",
+            recipients=[user.email],
+            body=f"مرحبًا {user.name},\n\nتمت الموافقة على حسابك كطاهية. يمكنك الآن تسجيل الدخول وإنشاء مطبخك."
+        )
+        mail.send(msg)
+
 # الموافقة على الطاهية
 @admin.route("/admin/approve-chef/<int:id>")
 def approve_chef(id):
     chef = User.query.get_or_404(id)
     chef.status = "approved"
     db.session.commit()
-    return redirect("/admin/chefs")
+    send_approval_email(chef)
+    flash("✅ تمت الموافقة على الطاهية وإرسال إشعار لها.", "success")
+    return redirect(url_for("admin.admin_chefs"))
 
 # رفض الطاهية
 @admin.route("/admin/reject-chef/<int:id>")
@@ -43,7 +56,8 @@ def reject_chef(id):
     chef = User.query.get_or_404(id)
     chef.status = "rejected"
     db.session.commit()
-    return redirect("/admin/chefs")
+    flash("❌ تم رفض حساب الطاهية.", "danger")
+    return redirect(url_for("admin.admin_chefs"))
 
 # إدارة المطابخ
 @admin.route("/admin/kitchens")
@@ -57,7 +71,8 @@ def toggle_kitchen(kitchen_id):
     kitchen = Kitchen.query.get_or_404(kitchen_id)
     kitchen.is_open = not kitchen.is_open
     db.session.commit()
-    return redirect("/admin/kitchens")  # ✅ تعديل
+    flash("🔄 تم تحديث حالة المطبخ.", "info")
+    return redirect(url_for("admin.kitchens"))
 
 # ⭐ تمييز / إلغاء تمييز المطبخ
 @admin.route("/admin/toggle-feature/<int:kitchen_id>")
@@ -65,7 +80,8 @@ def toggle_feature(kitchen_id):
     kitchen = Kitchen.query.get_or_404(kitchen_id)
     kitchen.featured = not kitchen.featured
     db.session.commit()
-    return redirect("/admin/kitchens")
+    flash("⭐ تم تحديث حالة التمييز للمطبخ.", "info")
+    return redirect(url_for("admin.kitchens"))
 
 # إدارة الأكلات
 @admin.route("/admin/meals")
@@ -80,10 +96,11 @@ def delete_meal(meal_id):
     try:
         db.session.delete(meal)
         db.session.commit()
-        return redirect(url_for('admin.admin_meals'))
+        flash("✅ تم حذف الأكلة بنجاح.", "success")
     except Exception as e:
         db.session.rollback()
-        return f"خطأ: {e}"
+        flash(f"❌ خطأ أثناء الحذف: {e}", "danger")
+    return redirect(url_for('admin.admin_meals'))
 
 # إدارة الطلبات
 @admin.route("/admin/orders")
@@ -101,19 +118,8 @@ def delete_chef(chef_id):
             db.session.delete(kitchen)
         db.session.delete(chef)
         db.session.commit()
-        return redirect(url_for('admin.admin_chefs'))
+        flash("✅ تم حذف الطاهية ومطبخها.", "success")
     except Exception as e:
         db.session.rollback()
-        return f"خطأ: {e}"
-
-
-# ✅ تحديث حالة الطلب 
-@admin.route("/admin/update-order/<int:order_id>/<string:new_status>")
-def update_order(order_id, new_status):
-    order = Order.query.get_or_404(order_id)
-
-    if new_status in ["preparing", "delivered"]:
-        order.status = new_status
-        db.session.commit()
-
-    return redirect("/admin/orders")
+        flash(f"❌ خطأ أثناء الحذف: {e}", "danger")
+    return redirect(url_for('admin.admin_chefs'))

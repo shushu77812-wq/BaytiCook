@@ -2,28 +2,31 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 import os
+from dotenv import load_dotenv   # ✅ إضافة مكتبة dotenv
 
 db = SQLAlchemy()
 mail = Mail()   # ✅ تهيئة البريد
 
 def create_app():
+    # ✅ تحميل القيم من ملف .env
+    load_dotenv()
+
     app = Flask(__name__)
 
-    app.config["SECRET_KEY"] = "123456789"
-
-    # ✅ SQLite
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+    # ✅ القيم من ملف .env
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "123456789")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///database.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # ✅ إعدادات البريد
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")  # بريدك
-    app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")  # كلمة مرور التطبيقات
+    # ✅ إعدادات البريد من ملف .env
+    app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    app.config['MAIL_PORT'] = int(os.getenv("MAIL_PORT", 587))
+    app.config['MAIL_USE_TLS'] = os.getenv("MAIL_USE_TLS", "True").lower() in ["true", "1", "yes"]
+    app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+    app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 
     db.init_app(app)
-    mail.init_app(app)   # ✅ ربط البريد مع التطبيق
+    mail.init_app(app)
 
     # ✅ استدعاء الموديلات
     from app.models.kitchen_model import Kitchen

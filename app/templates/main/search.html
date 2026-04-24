@@ -4,9 +4,50 @@
 <head>
 <meta charset="UTF-8">
 <title>نتائج البحث</title>
-
 <link rel="stylesheet" href="/static/css/style.css">
-
+<style>
+.meals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 1000px;
+}
+.meal-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 15px;
+    text-align: center;
+}
+.meal-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.price {
+    font-weight: bold;
+    color: #27ae60;
+}
+.add-cart, .details-btn {
+    display:inline-block;
+    margin:5px;
+    padding:8px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    text-decoration:none;
+}
+.add-cart {
+    background:#27ae60;
+    color:white;
+}
+.details-btn {
+    background:#3498db;
+    color:white;
+}
+</style>
 </head>
 
 <body>
@@ -18,29 +59,42 @@
 <div class="meals-grid">
 
 {% for meal in meals %}
-
-<!-- نفس الكرت بالضبط -->
 <div class="meal-card">
 
-<img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}">
+    <!-- صورة الطبق -->
+    {% if meal.images %}
+        <img src="{{ url_for('static', filename='uploads/' + meal.images[0].image) }}">
+    {% else %}
+        <img src="{{ url_for('static', filename='uploads/no-image.png') }}">
+    {% endif %}
 
-<h3>{{ meal.name }}</h3>
+    <h3>{{ meal.name }}</h3>
+    <p class="price">💰 {{ meal.price }} ريال</p>
+    <p class="kitchen">من مطبخ {{ meal.kitchen.kitchen_name }}</p>
+    <p class="description">{{ meal.description }}</p>
 
-<p class="price">{{ meal.price }} ريال</p>
+    <!-- حالة الطبق -->
+    <p>
+        {% if meal.is_available %}
+            ✅ متاح
+        {% else %}
+            ❌ غير متاح
+        {% endif %}
+    </p>
 
-<p class="kitchen">
-من مطبخ {{ meal.kitchen.kitchen_name }}
-</p>
+    <!-- زر التفاصيل -->
+    <a href="{{ url_for('shop.meal_details', id=meal.id) }}" class="details-btn">👁️ عرض التفاصيل</a>
 
-<p class="description">
-{{ meal.description }}
-</p>
+    <!-- زر إضافة للسلة -->
+    {% if meal.is_available %}
+    <form action="{{ url_for('shop.add_to_cart', meal_id=meal.id) }}" method="POST" style="display:inline;">
+        <button type="submit" class="add-cart">🛒 أضف للسلة</button>
+    </form>
+    {% else %}
+    <button class="add-cart" disabled>❌ غير متاح</button>
+    {% endif %}
 
-<a href="/add-to-cart/{{ meal.id }}" class="add-cart">
-🛒 أضف للسلة
-</a>
 </div>
-
 {% endfor %}
 
 </div>

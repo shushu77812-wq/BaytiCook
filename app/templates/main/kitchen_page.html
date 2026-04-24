@@ -61,6 +61,14 @@
             border: none;
             cursor: pointer;
         }
+
+        .btn-back {
+            display:block;
+            text-align:center;
+            margin-top:20px;
+            color:#3498db;
+            text-decoration:none;
+        }
     </style>
 </head>
 
@@ -80,6 +88,7 @@
             <p>👩‍🍳 {{ kitchen.user.name if kitchen.user else "-" }}</p>
             <p>📞 {{ kitchen.user.phone if kitchen.user else "-" }}</p>
             <p>📍 {{ kitchen.location }}</p>
+            <p>🏠 {{ kitchen.address if kitchen.address else "" }}</p>
             <p>{{ kitchen.description }}</p>
             <p>
                 {% if kitchen.is_open %}
@@ -108,20 +117,32 @@
 
             <h4>{{ meal.name }}</h4>
             <p>{{ meal.description }}</p>
-            <p>💰 {{ meal.price }} ريال</p>
+            <p style="font-weight:bold;color:#27ae60;">💰 {{ meal.price }} ريال</p>
+
+            <!-- حالة الطبق -->
+            <p>
+                {% if meal.is_available %}
+                    ✅ متاح
+                {% else %}
+                    ❌ غير متاح
+                {% endif %}
+            </p>
 
             <!-- زر الطلب -->
-            {% if kitchen.is_open %}
+            {% if kitchen.is_open and meal.is_available %}
             <form action="{{ url_for('shop.add_to_cart', meal_id=meal.id) }}" method="POST">
                 <button type="submit" class="btn-order">اطلب الآن</button>
             </form>
             {% else %}
-            <button class="btn-order" disabled>المطبخ مغلق</button>
+            <button class="btn-order" disabled>غير متاح</button>
             {% endif %}
 
         </div>
         {% endfor %}
     </div>
+
+    <!-- زر رجوع -->
+    <a href="/" class="btn-back">⬅ الرجوع</a>
 
 </div>
 

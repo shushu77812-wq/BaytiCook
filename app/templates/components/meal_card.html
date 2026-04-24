@@ -1,20 +1,28 @@
 <div class="meal-card">
+  <!-- صورة الطبق -->
+  <img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}" alt="صورة الطبق" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
 
-<img src="/static/uploads/{{ meal.images[0].image if meal.images else 'no-image.png' }}">
+  <!-- اسم الطبق -->
+  <h3 style="margin:10px 0; color:#333;">{{ meal.name }}</h3>
 
-<h3>{{ meal.name }}</h3>
+  <!-- السعر -->
+  <p class="price" style="font-weight:bold; color:#27ae60;">💰 {{ meal.price }} ريال</p>
 
-<p class="price">{{ meal.price }} ريال</p>
+  <!-- اسم المطبخ -->
+  <p style="color:#555;">من مطبخ <strong>{{ meal.kitchen.kitchen_name }}</strong></p>
 
-<p>
-من مطبخ {{ meal.kitchen.kitchen_name }}
-</p>
+  <!-- أزرار التحكم -->
+  <div style="margin-top:10px;">
+    <a href="/meal/{{ meal.id }}">
+      <button class="details-btn" style="background:#3498db; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">
+        👁️ عرض التفاصيل
+      </button>
+    </a>
 
-<a href="/meal/{{ meal.id }}">
-<button class="details-btn">عرض التفاصيل</button>
-</a>
-<form action="/add-to-cart/{{ meal.id }}" method="POST">
-<button type="submit">أضف للسلة</button>
-</form>
-
+    <form action="/add-to-cart/{{ meal.id }}" method="POST" style="display:inline;">
+      <button type="submit" style="background:#27ae60; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">
+        🛒 أضف للسلة
+      </button>
+    </form>
+  </div>
 </div>

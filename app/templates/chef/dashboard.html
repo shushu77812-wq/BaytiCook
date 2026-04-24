@@ -6,17 +6,18 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/chefs.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    body { font-family: Tahoma, sans-serif; background:#f4f4f4; margin:0; }
     .container { display:flex; }
-    .sidebar { width:220px; background:#333; color:#fff; padding:20px; }
-    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; }
-    .sidebar a:hover { background:#444; }
-    .content { flex:1; padding:10px; }
+    .sidebar { width:220px; background:#333; color:#fff; padding:20px; height:100vh; }
+    .sidebar a { display:block; color:#fff; padding:10px; text-decoration:none; margin:5px 0; border-radius:6px; }
+    .sidebar a:hover { background:#ff6a00; }
+    .content { flex:1; padding:20px; }
     .success-alert { background:#d4edda; padding:15px; border:1px solid #c3e6cb; margin-bottom:20px; border-radius:8px; }
     .alert { background:#fff3cd; padding:15px; border:1px solid #ffeeba; margin-bottom:20px; border-radius:8px; }
     .stats { display:flex; flex-wrap:wrap; }
-    .stat-card { flex:1; min-width:150px; text-align:center; padding:20px; margin:10px; border-radius:8px; }
+    .stat-card { flex:1; min-width:150px; text-align:center; padding:20px; margin:10px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
     .cards { display:flex; flex-wrap:wrap; margin-top:20px; }
-    .card { flex:1; min-width:200px; background:#f9f9f9; padding:15px; margin:10px; border-radius:8px; text-align:center; }
+    .card { flex:1; min-width:200px; background:#f9f9f9; padding:15px; margin:10px; border-radius:8px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
     .card a { display:inline-block; margin-top:10px; padding:8px 12px; background:#27ae60; color:#fff; border-radius:6px; text-decoration:none; }
     .card a:hover { background:#219150; }
   </style>
@@ -37,6 +38,15 @@
   <!-- CONTENT -->
   <div class="content">
     <h1>مرحباً {{ user.name }}</h1>
+
+    <!-- رسائل الفلاش -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="success-alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <!-- رسالة الموافقة -->
     {% if user.status == "approved" %}
@@ -67,6 +77,10 @@
         <h3>قيد التحضير</h3>
         <p>{{ preparing_count }}</p>
       </div>
+      <div class="stat-card" style="background:#e2e3e5;">
+        <h3>الطلبات المكتملة</h3>
+        <p>{{ completed_count }}</p>
+      </div>
       <div class="stat-card" style="background:#f8d7da;">
         <h3>الطلبات الملغاة</h3>
         <p>{{ cancelled_count }}</p>
@@ -84,6 +98,11 @@
         <h3>الطلبات</h3>
         <p>عرض طلبات الزبائن</p>
         <a href="/orders">فتح</a>
+      </div>
+      <div class="card">
+        <h3>📍 موقع المطبخ</h3>
+        <p>{{ kitchen.location }}</p>
+        <p>{{ kitchen.address }}</p>
       </div>
     </div>
   </div>
