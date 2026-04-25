@@ -24,5 +24,8 @@ class Meal(db.Model):
     # 🟢 التوفر اليومي (1 = متوفر، 0 = غير متوفر)
     is_available = db.Column(db.Integer, default=1)
 
+    # 🔗 العلاقة مع عناصر الطلبات
+    order_items = db.relationship("OrderItem", back_populates="meal", cascade="all, delete-orphan")
+
     def __repr__(self):
         return f"<Meal {self.name}>"

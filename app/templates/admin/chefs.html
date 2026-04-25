@@ -1,318 +1,138 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-
+<html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>إدارة المطابخ</title>
+    <meta charset="UTF-8">
+    <title>إدارة الطاهيات</title>
+    <style>
+        body {
+            font-family: "Tahoma", sans-serif;
+            background: #f5f5f5;
+            direction: rtl;
+            text-align: center;
+        }
 
-<style>
-body{
-margin:0;
-font-family:Tahoma;
-background:#f5f6fa;
-direction:rtl;
-display:flex;
-}
+        .container {
+            width: 90%;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #ccc;
+        }
 
-.sidebar{
-width:220px;
-background:#1e272e;
-color:white;
-height:100vh;
-padding:20px;
-position:fixed;
-right:0;
-top:0;
-}
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
 
-.sidebar a{
-display:block;
-color:white;
-text-decoration:none;
-margin:15px 0;
-padding:10px;
-border-radius:6px;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
 
-.sidebar a:hover{ background:#ff6a00; }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
 
-.content{
-margin-right:240px;
-padding:30px;
-width:100%;
-}
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-gap:20px;
-}
+        th {
+            background: #f0f0f0;
+        }
 
-.card{
-background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 3px 10px rgba(0,0,0,0.1);
-text-align:center;
-border-top: 4px solid #1e272e;
-}
+        a.btn {
+            padding: 6px 12px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 2px;
+        }
 
-.btn{
-display:inline-block;
-margin-top:10px;
-padding:8px 15px;
-border-radius:6px;
-color:white;
-text-decoration:none;
-font-size: 14px;
-cursor: pointer;
-border: none;
-}
+        .btn-approve {
+            background: #4CAF50;
+            color: white;
+        }
 
-.open{background:#27ae60;}
-.close{background:#e74c3c;}
-.feature{background:#f39c12;}
-.unfeature{background:#c0392b;}
+        .btn-reject {
+            background: #f44336;
+            color: white;
+        }
 
-.flash-messages {
-    margin-bottom: 15px;
-}
-.alert {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    font-size: 14px;
-}
-.alert-success { background: #d4edda; color: #155724; }
-.alert-danger { background: #f8d7da; color: #721c24; }
-.alert-warning { background: #fff3cd; color: #856404; }
-.alert-info    { background: #d1ecf1; color: #0c5460; }
-</style>
+        .btn-delete {
+            background: #9c27b0;
+            color: white;
+        }
 
+        .flash-messages {
+            margin-bottom: 15px;
+        }
+
+        .alert {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-danger { background: #f8d7da; color: #721c24; }
+        .alert-warning { background: #fff3cd; color: #856404; }
+        .alert-info    { background: #d1ecf1; color: #0c5460; }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <!-- عرض رسائل الفلاش -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
 
-<div class="sidebar">
-<h2>BaytiCook</h2>
-<a href="/admin">لوحة التحكم</a>
-<a href="/admin/chefs">الطاهيات</a>
-<a href="/admin/kitchens">المطابخ</a>
-<a href="/admin/meals">الأكلات</a>
-<a href="/admin/orders">الطلبات</a>
-<a href="/">الموقع</a>
-</div>
+        <h2>إدارة الطاهيات</h2>
 
-<div class="content">
-
-<!-- رسائل الفلاش -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-messages">
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-          {{ message }}
-        </div>
-      {% endfor %}
+        <table>
+            <tr>
+                <th>الاسم</th>
+                <th>الهاتف</th>
+                <th>البريد الإلكتروني</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+            </tr>
+            {% for chef in chefs %}
+            <tr>
+                <td>{{ chef.name }}</td>
+                <td>{{ chef.phone }}</td>
+                <td>{{ chef.email or "—" }}</td>
+                <td>
+                    {% if chef.status == "pending" %}
+                        ⏳ بانتظار الموافقة
+                    {% elif chef.status == "approved" %}
+                        ✅ مقبول
+                    {% elif chef.status == "rejected" %}
+                        ❌ مرفوض
+                    {% endif %}
+                </td>
+                <td>
+                    {% if chef.status == "pending" %}
+                        <a href="{{ url_for('admin.approve_chef', id=chef.id) }}" class="btn btn-approve">موافقة</a>
+                        <a href="{{ url_for('admin.reject_chef', id=chef.id) }}" class="btn btn-reject">رفض</a>
+                    {% endif %}
+                    <a href="{{ url_for('admin.delete_chef', chef_id=chef.id) }}" class="btn btn-delete">حذف</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
-  {% endif %}
-{% endwith %}
-
-<h2>إدارة المطابخ</h2>
-
-<div class="grid">
-
-{% for kitchen in kitchens %}
-
-<div class="card">
-
-<h3>🍳 {{ kitchen.kitchen_name }}</h3>
-<p>👤 المالك: {{ kitchen.user.name }}</p>
-<p>📍 {{ kitchen.location }}</p>
-
-{% if kitchen.featured %}
-<p>⭐ مميز</p>
-<a class="btn unfeature" href="{{ url_for('admin.toggle_feature', kitchen_id=kitchen.id) }}">إلغاء التمييز</a>
-{% else %}
-<a class="btn feature" href="{{ url_for('admin.toggle_feature', kitchen_id=kitchen.id) }}">تمييز ⭐</a>
-{% endif %}
-
-<br>
-
-{% if kitchen.is_open %}
-<p style="color:green;">🟢 المطبخ مفتوح</p>
-<a class="btn close" href="{{ url_for('admin.toggle_kitchen', kitchen_id=kitchen.id) }}">إغلاق المطبخ</a>
-{% else %}
-<p style="color:red;">🔴 المطبخ مغلق</p>
-<a class="btn open" href="{{ url_for('admin.toggle_kitchen', kitchen_id=kitchen.id) }}">فتح المطبخ</a>
-{% endif %}
-
-</div>
-
-{% endfor %}
-
-</div>
-
-</div>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-
-<head>
-<meta charset="UTF-8">
-<title>إدارة المطابخ</title>
-
-<style>
-body{
-margin:0;
-font-family:Tahoma;
-background:#f5f6fa;
-direction:rtl;
-display:flex;
-}
-
-.sidebar{
-width:220px;
-background:#1e272e;
-color:white;
-height:100vh;
-padding:20px;
-position:fixed;
-right:0;
-top:0;
-}
-
-.sidebar a{
-display:block;
-color:white;
-text-decoration:none;
-margin:15px 0;
-padding:10px;
-border-radius:6px;
-}
-
-.sidebar a:hover{ background:#ff6a00; }
-
-.content{
-margin-right:240px;
-padding:30px;
-width:100%;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-gap:20px;
-}
-
-.card{
-background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 3px 10px rgba(0,0,0,0.1);
-text-align:center;
-border-top: 4px solid #1e272e;
-}
-
-.btn{
-display:inline-block;
-margin-top:10px;
-padding:8px 15px;
-border-radius:6px;
-color:white;
-text-decoration:none;
-font-size: 14px;
-cursor: pointer;
-border: none;
-}
-
-.open{background:#27ae60;}
-.close{background:#e74c3c;}
-.feature{background:#f39c12;}
-.unfeature{background:#c0392b;}
-
-.flash-messages {
-    margin-bottom: 15px;
-}
-.alert {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    font-size: 14px;
-}
-.alert-success { background: #d4edda; color: #155724; }
-.alert-danger { background: #f8d7da; color: #721c24; }
-.alert-warning { background: #fff3cd; color: #856404; }
-.alert-info    { background: #d1ecf1; color: #0c5460; }
-</style>
-
-</head>
-
-<body>
-
-<div class="sidebar">
-<h2>BaytiCook</h2>
-<a href="/admin">لوحة التحكم</a>
-<a href="/admin/chefs">الطاهيات</a>
-<a href="/admin/kitchens">المطابخ</a>
-<a href="/admin/meals">الأكلات</a>
-<a href="/admin/orders">الطلبات</a>
-<a href="/">الموقع</a>
-</div>
-
-<div class="content">
-
-<!-- رسائل الفلاش -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-messages">
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
-<h2>إدارة المطابخ</h2>
-
-<div class="grid">
-
-{% for kitchen in kitchens %}
-
-<div class="card">
-
-<h3>🍳 {{ kitchen.kitchen_name }}</h3>
-<p>👤 المالك: {{ kitchen.user.name }}</p>
-<p>📍 {{ kitchen.location }}</p>
-
-{% if kitchen.featured %}
-<p>⭐ مميز</p>
-<a class="btn unfeature" href="{{ url_for('admin.toggle_feature', kitchen_id=kitchen.id) }}">إلغاء التمييز</a>
-{% else %}
-<a class="btn feature" href="{{ url_for('admin.toggle_feature', kitchen_id=kitchen.id) }}">تمييز ⭐</a>
-{% endif %}
-
-<br>
-
-{% if kitchen.is_open %}
-<p style="color:green;">🟢 المطبخ مفتوح</p>
-<a class="btn close" href="{{ url_for('admin.toggle_kitchen', kitchen_id=kitchen.id) }}">إغلاق المطبخ</a>
-{% else %}
-<p style="color:red;">🔴 المطبخ مغلق</p>
-<a class="btn open" href="{{ url_for('admin.toggle_kitchen', kitchen_id=kitchen.id) }}">فتح المطبخ</a>
-{% endif %}
-
-</div>
-
-{% endfor %}
-
-</div>
-
-</div>
-
 </body>
 </html>

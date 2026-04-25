@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>إدارة الطلبات</title>
+<title>إدارة المطابخ</title>
 
 <style>
 body{
@@ -14,7 +14,6 @@ direction:rtl;
 display:flex;
 }
 
-/* sidebar */
 .sidebar{
 width:220px;
 background:#1e272e;
@@ -26,10 +25,6 @@ right:0;
 top:0;
 }
 
-.sidebar h2{
-margin-bottom:30px;
-}
-
 .sidebar a{
 display:block;
 color:white;
@@ -39,39 +34,27 @@ padding:10px;
 border-radius:6px;
 }
 
-.sidebar a:hover{
-background:#ff6a00;
-}
+.sidebar a:hover{ background:#ff6a00; }
 
-/* content */
 .content{
 margin-right:240px;
 padding:30px;
 width:100%;
 }
 
-/* grid */
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
 gap:20px;
 }
 
-/* card */
 .card{
 background:white;
 padding:15px;
 border-radius:10px;
 box-shadow:0 3px 10px rgba(0,0,0,0.1);
-}
-
-.card h3{
-margin:0;
-color:#333;
-}
-
-.card p{
-margin:8px 0;
+text-align:center;
+border-top: 4px solid #1e272e;
 }
 
 .btn{
@@ -81,13 +64,15 @@ padding:8px 15px;
 border-radius:6px;
 color:white;
 text-decoration:none;
-font-size:14px;
+font-size: 14px;
+cursor: pointer;
+border: none;
 }
 
-.pending{background:#f39c12;}
-.processing{background:#2980b9;}
-.completed{background:#27ae60;}
-.cancelled{background:#e74c3c;}
+.open{background:#27ae60;}
+.close{background:#e74c3c;}
+.feature{background:#f39c12;}
+.unfeature{background:#c0392b;}
 
 .flash-messages {
     margin-bottom: 15px;
@@ -103,22 +88,21 @@ font-size:14px;
 .alert-warning { background: #fff3cd; color: #856404; }
 .alert-info    { background: #d1ecf1; color: #0c5460; }
 </style>
+
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 <h2>BaytiCook</h2>
-<a href="{{ url_for('admin.admin_dashboard') }}">لوحة التحكم</a>
-<a href="{{ url_for('admin.admin_chefs') }}">الطاهيات</a>
-<a href="{{ url_for('admin.kitchens') }}">المطابخ</a>
-<a href="{{ url_for('admin.admin_meals') }}">الأكلات</a>
-<a href="{{ url_for('admin.admin_order') }}">الطلبات</a>
+<a href="/admin">لوحة التحكم</a>
+<a href="/admin/chefs">الطاهيات</a>
+<a href="/admin/kitchens">المطابخ</a>
+<a href="/admin/meals">الأكلات</a>
+<a href="/admin/orders">الطلبات</a>
 <a href="/">الموقع</a>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
 
 <!-- رسائل الفلاش -->
@@ -134,26 +118,37 @@ font-size:14px;
   {% endif %}
 {% endwith %}
 
-<h2>إدارة الطلبات</h2>
+<h2>إدارة المطابخ</h2>
 
 <div class="grid">
 
-{% for order in orders %}
-<div class="card">
-  <h3>📦 الطلب رقم {{ order.id }}</h3>
-  <p>👤 الزبون: {{ order.user.name if order.user else "غير معروف" }}</p>
-  <p>🍳 المطبخ: {{ order.kitchen.kitchen_name if order.kitchen else "-" }}</p>
-  <p>📱 الهاتف: {{ order.user.phone if order.user else "-" }}</p>
-  <p>📍 العنوان: {{ order.address }}</p>
-  <p>💵 المبلغ: {{ order.total_price }} ريال</p>
-  <p>الحالة الحالية: <strong>{{ order.status }}</strong></p>
+{% for kitchen in kitchens %}
 
-  <!-- أزرار تحديث الحالة -->
-  <a class="btn pending" href="{{ url_for('admin.update_order_status', order_id=order.id, status='pending') }}">قيد الانتظار</a>
-  <a class="btn processing" href="{{ url_for('admin.update_order_status', order_id=order.id, status='processing') }}">قيد التنفيذ</a>
-  <a class="btn completed" href="{{ url_for('admin.update_order_status', order_id=order.id, status='completed') }}">مكتمل ✅</a>
-  <a class="btn cancelled" href="{{ url_for('admin.update_order_status', order_id=order.id, status='cancelled') }}">ملغي ❌</a>
+<div class="card">
+
+<h3>🍳 {{ kitchen.kitchen_name }}</h3>
+<p>👤 المالك: {{ kitchen.user.name }}</p>
+<p>📍 {{ kitchen.location }}</p>
+
+{% if kitchen.featured %}
+<p>⭐ مميز</p>
+<a class="btn unfeature" href="{{ url_for('admin.toggle_feature', kitchen_id=kitchen.id) }}">إلغاء التمييز</a>
+{% else %}
+<a class="btn feature" href="{{ url_for('admin.toggle_feature', kitchen_id=kitchen.id) }}">تمييز ⭐</a>
+{% endif %}
+
+<br>
+
+{% if kitchen.is_open %}
+<p style="color:green;">🟢 المطبخ مفتوح</p>
+<a class="btn close" href="{{ url_for('admin.toggle_kitchen', kitchen_id=kitchen.id) }}">إغلاق المطبخ</a>
+{% else %}
+<p style="color:red;">🔴 المطبخ مغلق</p>
+<a class="btn open" href="{{ url_for('admin.toggle_kitchen', kitchen_id=kitchen.id) }}">فتح المطبخ</a>
+{% endif %}
+
 </div>
+
 {% endfor %}
 
 </div>

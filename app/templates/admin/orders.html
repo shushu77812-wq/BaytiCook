@@ -2,200 +2,161 @@
 <html lang="ar" dir="rtl">
 
 <head>
-  <meta charset="UTF-8">
-  <title>📦 إدارة الطلبات</title>
+<meta charset="UTF-8">
+<title>إدارة الطلبات</title>
 
-  <style>
-    /* إعدادات عامة */
-    body {
-      margin: 0;
-      font-family: Tahoma, sans-serif;
-      background: #f5f6fa;
-      direction: rtl;
-      display: flex;
-    }
+<style>
+body{
+margin:0;
+font-family:Tahoma;
+background:#f5f6fa;
+direction:rtl;
+display:flex;
+}
 
-    .admin-container {
-      display: flex;
-      width: 100%;
-    }
+/* sidebar */
+.sidebar{
+width:220px;
+background:#1e272e;
+color:white;
+height:100vh;
+padding:20px;
+position:fixed;
+right:0;
+top:0;
+}
 
-    /* الشريط الجانبي */
-    .sidebar {
-      width: 220px;
-      background: #1e272e;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      position: fixed;
-      right: 0;
-      top: 0;
-    }
+.sidebar h2{
+margin-bottom:30px;
+}
 
-    .sidebar h2 {
-      margin-bottom: 30px;
-    }
+.sidebar a{
+display:block;
+color:white;
+text-decoration:none;
+margin:15px 0;
+padding:10px;
+border-radius:6px;
+}
 
-    .sidebar a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      margin: 15px 0;
-      padding: 10px;
-      border-radius: 6px;
-    }
+.sidebar a:hover{
+background:#ff6a00;
+}
 
-    .sidebar a:hover {
-      background: #ff6a00;
-    }
+/* content */
+.content{
+margin-right:240px;
+padding:30px;
+width:100%;
+}
 
-    /* المحتوى */
-    .content {
-      margin-right: 240px;
-      padding: 30px;
-      width: 100%;
-    }
+/* grid */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+gap:20px;
+}
 
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
-    }
+/* card */
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
 
-    /* جدول الطلبات */
-    .orders-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
+.card h3{
+margin:0;
+color:#333;
+}
 
-    .orders-table th,
-    .orders-table td {
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-    }
+.card p{
+margin:8px 0;
+}
 
-    .orders-table th {
-      background: #1e272e;
-      color: white;
-    }
+.btn{
+display:inline-block;
+margin-top:10px;
+padding:8px 15px;
+border-radius:6px;
+color:white;
+text-decoration:none;
+font-size:14px;
+}
 
-    /* الحالة */
-    .status {
-      padding: 5px 10px;
-      border-radius: 6px;
-      color: white;
-      font-size: 12px;
-    }
+.pending{background:#f39c12;}
+.processing{background:#2980b9;}
+.completed{background:#27ae60;}
+.cancelled{background:#e74c3c;}
 
-    .pending { background: #f39c12; }
-    .preparing { background: #3498db; }
-    .delivered { background: #2ecc71; }
-    .cancelled { background: #e74c3c; }
-
-    /* الأزرار */
-    .btn {
-      padding: 6px 10px;
-      border-radius: 6px;
-      color: white;
-      text-decoration: none;
-      font-size: 12px;
-      margin: 2px;
-      display: inline-block;
-    }
-
-    .btn.pending { background: #f39c12; }
-    .btn.preparing { background: #3498db; }
-    .btn.delivered { background: #2ecc71; }
-    .btn.cancelled { background: #e74c3c; }
-
-    /* رسائل الفلاش */
-    .flash-messages {
-      margin-bottom: 15px;
-    }
-    .alert {
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-    .alert-success { background: #d4edda; color: #155724; }
-    .alert-danger { background: #f8d7da; color: #721c24; }
-    .alert-warning { background: #fff3cd; color: #856404; }
-    .alert-info    { background: #d1ecf1; color: #0c5460; }
-  </style>
+.flash-messages {
+    margin-bottom: 15px;
+}
+.alert {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 14px;
+}
+.alert-success { background: #d4edda; color: #155724; }
+.alert-danger { background: #f8d7da; color: #721c24; }
+.alert-warning { background: #fff3cd; color: #856404; }
+.alert-info    { background: #d1ecf1; color: #0c5460; }
+</style>
 </head>
 
 <body>
 
-<div class="admin-container">
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>BaytiCook</h2>
+<a href="{{ url_for('admin.admin_dashboard') }}">لوحة التحكم</a>
+<a href="{{ url_for('admin.admin_chefs') }}">الطاهيات</a>
+<a href="{{ url_for('admin.kitchens') }}">المطابخ</a>
+<a href="{{ url_for('admin.admin_meals') }}">الأكلات</a>
+<a href="{{ url_for('admin.admin_order') }}">الطلبات</a>
+<a href="/">الموقع</a>
+</div>
 
-  <!-- القائمة -->
-  <div class="sidebar">
-    <h2>BaytiCook</h2>
-    <a href="{{ url_for('admin.admin_dashboard') }}">لوحة التحكم</a>
-    <a href="{{ url_for('admin.admin_chefs') }}">الطاهيات</a>
-    <a href="{{ url_for('admin.admin_meals') }}">الأكلات</a>
-    <a href="{{ url_for('admin.admin_order') }}">الطلبات</a>
-    <a href="/">الموقع</a>
-  </div>
+<!-- CONTENT -->
+<div class="content">
 
-  <!-- المحتوى -->
-  <div class="content">
-
-    <!-- رسائل الفلاش -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-messages">
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">
-              {{ message }}
-            </div>
-          {% endfor %}
+<!-- رسائل الفلاش -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {{ message }}
         </div>
-      {% endif %}
-    {% endwith %}
-
-    <h1>📦 إدارة الطلبات</h1>
-
-    <table class="orders-table">
-      <tr>
-        <th>رقم الطلب</th>
-        <th>المستخدم</th>
-        <th>الحالة</th>
-        <th>التحكم</th>
-      </tr>
-
-      {% for order in orders %}
-      <tr>
-        <td>#{{ order.id }}</td>
-        <td>{{ order.user.name if order.user else order.user_id }}</td>
-        <td>
-          {% if order.status == "pending" %}
-            <span class="status pending">قيد الانتظار</span>
-          {% elif order.status == "preparing" %}
-            <span class="status preparing">قيد التحضير</span>
-          {% elif order.status == "delivered" %}
-            <span class="status delivered">تم التوصيل</span>
-          {% elif order.status == "cancelled" %}
-            <span class="status cancelled">ملغي</span>
-          {% else %}
-            <span class="status">{{ order.status }}</span>
-          {% endif %}
-        </td>
-        <td>
-          <a class="btn pending" href="{{ url_for('admin.update_order_status', order_id=order.id, status='pending') }}">انتظار</a>
-          <a class="btn preparing" href="{{ url_for('admin.update_order_status', order_id=order.id, status='preparing') }}">تحضير</a>
-          <a class="btn delivered" href="{{ url_for('admin.update_order_status', order_id=order.id, status='delivered') }}">توصيل</a>
-          <a class="btn cancelled" href="{{ url_for('admin.update_order_status', order_id=order.id, status='cancelled') }}">إلغاء</a>
-        </td>
-      </tr>
       {% endfor %}
-    </table>
-  </div>
+    </div>
+  {% endif %}
+{% endwith %}
+
+<h2>إدارة الطلبات</h2>
+
+<div class="grid">
+
+{% for order in orders %}
+<div class="card">
+  <h3>📦 الطلب رقم {{ order.id }}</h3>
+  <p>👤 الزبون: {{ order.user.name if order.user else "غير معروف" }}</p>
+  <p>🍳 المطبخ: {{ order.kitchen.kitchen_name if order.kitchen else "-" }}</p>
+  <p>📱 الهاتف: {{ order.user.phone if order.user else "-" }}</p>
+  <p>📍 العنوان: {{ order.address }}</p>
+  <p>💵 المبلغ: {{ order.total_price }} ريال</p>
+  <p>الحالة الحالية: <strong>{{ order.status }}</strong></p>
+
+  <!-- أزرار تحديث الحالة -->
+  <a class="btn pending" href="{{ url_for('admin.update_order_status', order_id=order.id, status='pending') }}">قيد الانتظار</a>
+  <a class="btn processing" href="{{ url_for('admin.update_order_status', order_id=order.id, status='processing') }}">قيد التنفيذ</a>
+  <a class="btn completed" href="{{ url_for('admin.update_order_status', order_id=order.id, status='completed') }}">مكتمل ✅</a>
+  <a class="btn cancelled" href="{{ url_for('admin.update_order_status', order_id=order.id, status='cancelled') }}">ملغي ❌</a>
+</div>
+{% endfor %}
+
+</div>
 
 </div>
 
