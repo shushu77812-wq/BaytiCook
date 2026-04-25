@@ -123,3 +123,15 @@ def delete_chef(chef_id):
         db.session.rollback()
         flash(f"❌ خطأ أثناء الحذف: {e}", "danger")
     return redirect(url_for('admin.admin_chefs'))
+ 
+@admin.route("/admin/delete-kitchen/<int:kitchen_id>")
+def delete_kitchen(kitchen_id):
+    kitchen = Kitchen.query.get_or_404(kitchen_id)
+    try:
+        db.session.delete(kitchen)
+        db.session.commit()
+        flash("🗑️ تم حذف المطبخ بنجاح.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"❌ خطأ أثناء الحذف: {e}", "danger")
+    return redirect(url_for("admin.kitchens"))

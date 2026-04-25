@@ -35,7 +35,7 @@ def dashboard():
     orders = Order.query.filter_by(kitchen_id=kitchen.id).all()
     orders_count = len(orders)
     preparing_count = Order.query.filter_by(kitchen_id=kitchen.id, status="preparing").count()
-    completed_count = Order.query.filter_by(kitchen_id=kitchen.id, status="completed").count()
+    delivered_count = Order.query.filter_by(kitchen_id=kitchen.id, status="delivered").count()
     cancelled_count = Order.query.filter_by(kitchen_id=kitchen.id, status="cancelled").count()
     pending_count = Order.query.filter_by(kitchen_id=kitchen.id, status="pending").count()
 
@@ -45,7 +45,7 @@ def dashboard():
         meals_count=meals_count,
         orders_count=orders_count,
         preparing_count=preparing_count,
-        completed_count=completed_count,
+        delivered_count=delivered_count,
         cancelled_count=cancelled_count,
         pending_count=pending_count
     )
@@ -64,7 +64,6 @@ def create_kitchen():
         kitchen_logo_file = request.files.get("kitchen_logo")  
         description = request.form.get("description")
 
-        # ✅ الحقول الجديدة
         location = request.form.get("location")
         address = request.form.get("address")
         
@@ -79,8 +78,8 @@ def create_kitchen():
             kitchen_logo=logo_filename,             
             description=description,
             user_id=user_id,
-            location=location,   # ✅ جديد
-            address=address      # ✅ جديد
+            location=location,
+            address=address
         )
 
         db.session.add(new_kitchen)
@@ -190,11 +189,14 @@ def orders():
         flash("⚠️ يجب إنشاء مطبخ أولاً")
         return redirect(url_for("chef.create_kitchen"))
 
-    orders = Order.query.filter_by(kitchen_id=kitchen.id).all()
+    # ✅ عرض الطلبات غير المسلّمة فقط
+    orders = Order.query.filter(
+        Order.kitchen_id == kitchen.id,
+        Order.status != "delivered"
+    ).all()
 
     orders_count = len(orders)
     preparing_count = Order.query.filter_by(kitchen_id=kitchen.id, status="preparing").count()
-    completed_count = Order.query.filter_by(kitchen_id=kitchen.id, status="completed").count()
     cancelled_count = Order.query.filter_by(kitchen_id=kitchen.id, status="cancelled").count()
     pending_count = Order.query.filter_by(kitchen_id=kitchen.id, status="pending").count()
 
@@ -204,7 +206,6 @@ def orders():
         orders=orders,
         orders_count=orders_count,
         preparing_count=preparing_count,
-        completed_count=completed_count,
         cancelled_count=cancelled_count,
         pending_count=pending_count
     )
@@ -213,10 +214,13 @@ def orders():
 def update_order(order_id, new_status):
     order = Order.query.get_or_404(order_id)
 
-    if new_status in ["pending", "preparing", "completed", "cancelled"]:
+    if new_status in ["pending", "preparing", "delivered", "cancelled"]:
         order.status = new_status
         db.session.commit()
-        flash(f"✅ تم تحديث حالة الطلب إلى {new_status}")
+        if new_status == "delivered":
+            flash("🚚 تم تسليم الطلب وسيختفي من القائمة")
+        else:
+            flash(f"✅ تم تحديث حالة الطلب إلى {new_status}")
     else:
         flash("❌ حالة غير صحيحة")
 

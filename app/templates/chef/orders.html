@@ -32,7 +32,7 @@
       border-radius:6px; color:white; text-decoration:none; font-size:13px;
     }
     .btn.prepare { background:#3498db; }
-    .btn.complete { background:#27ae60; }
+    .btn.deliver { background:#27ae60; }
     .btn.cancel { background:#e74c3c; }
   </style>
 </head>
@@ -73,8 +73,8 @@
         <p>{{ preparing_count }}</p>
       </div>
       <div class="stat-card">
-        <h3>مكتملة</h3>
-        <p>{{ completed_count }}</p>
+        <h3>تم التسليم</h3>
+        <p>{{ delivered_count }}</p>
       </div>
       <div class="stat-card">
         <h3>ملغاة</h3>
@@ -97,14 +97,14 @@
         <p>الحالة: 
           {% if order.status == "pending" %} ⏳ قيد الانتظار 
           {% elif order.status == "preparing" %} 🔄 قيد التحضير 
-          {% elif order.status == "completed" %} ✅ مكتمل 
+          {% elif order.status == "delivered" %} 🚚 تم التسليم 
           {% elif order.status == "cancelled" %} ❌ ملغى 
           {% endif %}
         </p>
 
         <!-- أزرار تحديث الحالة -->
         <a href="/orders/update/{{ order.id }}/preparing" class="btn prepare">🔄 تحضير</a>
-        <a href="/orders/update/{{ order.id }}/completed" class="btn complete">✅ إكمال</a>
+        <a href="/orders/update/{{ order.id }}/delivered" class="btn deliver">🚚 تسليم</a>
         <a href="/orders/update/{{ order.id }}/cancelled" class="btn cancel"
            onclick="return confirm('هل أنت متأكد من إلغاء هذا الطلب؟')">🗑️ إلغاء</a>
       </div>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>جميع المطابخ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <h2>🍴 جميع المطابخ</h2>
+
+  <div class="meals-grid">
+    {% for kitchen in kitchens %}
+    <div class="meal-card">
+      {% if kitchen.kitchen_logo %}
+        <img src="{{ url_for('static', filename='uploads/' + kitchen.kitchen_logo) }}">
+      {% else %}
+        <img src="{{ url_for('static', filename='uploads/no-image.png') }}">
+      {% endif %}
+
+      <h3>{{ kitchen.kitchen_name }}</h3>
+      {% if kitchen.user %}
+        <p>👩‍🍳 الطاهية: {{ kitchen.user.name }}</p>
+        <p>📞 {{ kitchen.user.phone }}</p>
+      {% endif %}
+      <p>📍 {{ kitchen.location }}</p>
+      <p>📝 {{ kitchen.description }}</p>
+
+      {% if kitchen.is_open %}
+        <a href="{{ url_for('home.kitchen_detail', id=kitchen.id) }}">
+          <button class="view-btn">عرض المطبخ</button>
+        </a>
+      {% else %}
+        <button class="closed-btn" disabled>مغلق</button>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

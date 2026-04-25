@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>طلباتي</title>
+<style>
+body {
+  margin:0;
+  font-family:Tahoma, sans-serif;
+  background:#f5f6fa;
+  direction:rtl;
+  display:flex;
+}
+
+/* الشريط الجانبي */
+.sidebar {
+  width:220px;
+  background:#1e272e;
+  color:white;
+  height:100vh;
+  padding:30px 20px;
+  position:fixed;
+  right:0;
+  top:0;
+}
+.sidebar h2 {
+  margin-bottom:20px;
+}
+.sidebar a {
+  display:block;
+  color:white;
+  margin:12px 0;
+  text-decoration:none;
+  font-size:15px;
+}
+.sidebar a:hover {
+  text-decoration:underline;
+}
+
+/* المحتوى */
+.content {
+  margin-right:240px;
+  padding:30px;
+  width:100%;
+}
+.content h2 {
+  margin-bottom:25px;
+}
+
+/* صندوق الطلب */
+.order-box {
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:25px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+.order-box h3 {
+  margin-top:0;
+  margin-bottom:10px;
+}
+.order-box p {
+  margin:5px 0;
+}
+
+/* حالة الطلب */
+.pending {
+  color:#999;
+  background:#f0f0f0;
+  padding:6px 10px;
+  border-radius:5px;
+  display:inline-block;
+}
+.preparing {
+  color:#f39c12;
+  background:#fff3cd;
+  padding:6px 10px;
+  border-radius:5px;
+  display:inline-block;
+}
+.delivered {
+  color:#2ecc71;
+  background:#e2f7e2;
+  padding:6px 10px;
+  border-radius:5px;
+  display:inline-block;
+}
+
+/* قائمة الأطباق */
+.order-box ul {
+  list-style:none;
+  padding:0;
+  margin-top:10px;
+}
+.order-box ul li {
+  background:#f9f9f9;
+  margin-bottom:5px;
+  padding:8px;
+  border-radius:6px;
+  font-size:14px;
+}
+
+/* progress bar */
+.progress {
+  display:flex;
+  justify-content:space-between;
+  margin-top:20px;
+  position:relative;
+}
+.step {
+  flex:1;
+  text-align:center;
+  position:relative;
+}
+.step::before {
+  content:"";
+  position:absolute;
+  top:10px;
+  left:-50%;
+  width:100%;
+  height:4px;
+  background:#ddd;
+  z-index:-1;
+}
+.step:first-child::before {display:none;}
+.circle {
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#ddd;
+  margin:auto;
+}
+.active .circle {background:#27ae60;}
+.label {font-size:12px;margin-top:5px;}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>👤 حسابي</h2>
+  <a href="/">الرئيسية</a>
+  <a href="/cart">السلة</a>
+  <a href="/my-orders">طلباتي</a>
+</div>
+
+<div class="content">
+  <h2>📦 طلباتي</h2>
+
+  {% for order in orders %}
+  <div class="order-box">
+    <h3>طلب رقم {{ order.id }}</h3>
+    <p>🍳 {{ order.kitchen.kitchen_name }}</p>
+
+    <!-- الحالة -->
+    <p class="
+      {% if order.status == 'pending' %}pending
+      {% elif order.status == 'preparing' %}preparing
+      {% elif order.status == 'delivered' %}delivered
+      {% endif %}
+    ">
+      {% if order.status == "pending" %}
+        ✅ تم الطلب
+      {% elif order.status == "preparing" %}
+        🍳 قيد التحضير
+      {% elif order.status == "delivered" %}
+        🚚 تم التوصيل
+      {% endif %}
+    </p>
+
+    <p>💰 {{ order.total_price }} ريال</p>
+
+    <!-- طريقة الدفع -->
+    <p>💳 طريقة الدفع: 
+      {% if order.payment_method == "bank" %}
+        🏦 تحويل بنكي
+      {% elif order.payment_method == "cash" %}
+        💵 عند الاستلام
+      {% endif %}
+    </p>
+
+    <!-- موقع الطاهية / نقطة الاستلام -->
+    <p>📍 موقع الاستلام: {{ order.kitchen.location }}</p>
+    <p>🏠 العنوان: {{ order.kitchen.address }}</p>
+
+    <!-- الأطباق -->
+    <ul>
+      {% for item in order.items %}
+        <li>{{ item.meal.name }} × {{ item.quantity }}</li>
+      {% endfor %}
+    </ul>
+
+    <!-- صورة التحويل (فقط عند الدفع البنكي) -->
+    {% if order.payment_method == 'bank' and order.proof_image %}
+      <p>📷 صورة التحويل:</p>
+      <img src="{{ url_for('static', filename='uploads/proofs/' + order.proof_image) }}" width="200">
+    {% endif %}
+
+    <!-- progress -->
+    <div class="progress">
+      <div class="step {% if order.status in ['pending','preparing','delivered'] %}active{% endif %}">
+        <div class="circle"></div>
+        <div class="label">تم الطلب</div>
+      </div>
+      <div class="step {% if order.status in ['preparing','delivered'] %}active{% endif %}">
+        <div class="circle"></div>
+        <div class="label">تحضير</div>
+      </div>
+      <div class="step {% if order.status == 'delivered' %}active{% endif %}">
+        <div class="circle"></div>
+        <div class="label">تم</div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+setInterval(function(){
+    location.reload();
+}, 5000);
+</script>
+
+</body>
+</html>

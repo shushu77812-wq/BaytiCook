@@ -102,44 +102,74 @@ def create_order():
     if not cart:
         return "السلة فارغة"
 
-    kitchens_orders = {}
-    for meal_id, quantity in cart.items():
-        meal = Meal.query.get(int(meal_id))
-        if not meal.kitchen.is_open:
-            return "❌ هذا المطبخ مغلق"
+    try:
+        kitchens_orders = {}
+        for meal_id, quantity in cart.items():
+            meal = Meal.query.get(int(meal_id))
+            if not meal.kitchen.is_open:
+                return "❌ هذا المطبخ مغلق"
 
-        kitchen_id = meal.kitchen_id
-        if kitchen_id not in kitchens_orders:
-            kitchens_orders[kitchen_id] = []
+            kitchen_id = meal.kitchen_id
+            if kitchen_id not in kitchens_orders:
+                kitchens_orders[kitchen_id] = []
 
-        kitchens_orders[kitchen_id].append({"meal": meal, "quantity": quantity})
+            kitchens_orders[kitchen_id].append({"meal": meal, "quantity": quantity})
 
-    for kitchen_id, items in kitchens_orders.items():
-        total_price = sum(item["meal"].price * item["quantity"] for item in items)
+        # ننشئ الطلبات لكل مطبخ
+        created_orders = []
+        for kitchen_id, items in kitchens_orders.items():
+            total_price = sum(item["meal"].price * item["quantity"] for item in items)
 
-        new_order = Order(
-            user_id=session["user_id"],
-            customer_id=session["user_id"],
-            kitchen_id=kitchen_id,
-            total_price=total_price,
-            status="قيد المراجعة"
-        )
-        db.session.add(new_order)
-        db.session.commit()
-
-        for item in items:
-            order_item = OrderItem(
-                order_id=new_order.id,
-                meal_id=item["meal"].id,
-                quantity=item["quantity"],
-                price=item["meal"].price
+            new_order = Order(
+                user_id=session["user_id"],
+                customer_id=session["user_id"],
+                kitchen_id=kitchen_id,
+                total_price=total_price,
+                status="قيد المراجعة"
             )
-            db.session.add(order_item)
+            db.session.add(new_order)
+            db.session.flush()  # يخلي الـ order.id جاهز بدون commit
+
+            for item in items:
+                order_item = OrderItem(
+                    order_id=new_order.id,
+                    meal_id=item["meal"].id,
+                    quantity=item["quantity"],
+                    price=item["meal"].price
+                )
+                db.session.add(order_item)
+
+            created_orders.append(new_order.id)
 
         db.session.commit()
+        session["cart"] = {}
 
-    session["cart"] = {}
-    return redirect(url_for("shop.my_orders"))
+        # نوجه المستخدم لأول طلب أنشأناه إلى صفحة الدفع
+        return redirect(url_for("shop.checkout", order_id=created_orders[0]))
+
+    except Exception as e:
+        db.session.rollback()
+        return f"❌ خطأ أثناء تأكيد الطلب: {e}"
+
+# =============================
+# صفحة الدفع
+# =============================
+@shop.route("/checkout/<int:order_id>", methods=["GET", "POST"])
+def checkout(order_id):
+    order = Order.query.get_or_404(order_id)
+
+    if request.method == "POST":
+        payment_method = request.form.get("payment_method")
+
+        if payment_method == "cod":  # الدفع عند الاستلام
+            order.status = "مؤكد"
+        elif payment_method == "bank":  # تحويل بنكي
+            order.status = "بانتظار الدفع"
+        db.session.commit()
+
+        return redirect(url_for("shop.my_orders"))
+
+    return render_template("main/checkout.html", order=order)
 
 # =============================
 # صفحة متابعة الطلبات
@@ -149,7 +179,10 @@ def my_orders():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
 
-    orders = Order.query.filter_by(user_id=session["user_id"]).all()
+    orders = Order.query.filter(
+    Order.user_id == session["user_id"],
+    Order.status != "delivered"
+    ).all()
     return render_template("main/my_orders.html", orders=orders)
 
 # =============================

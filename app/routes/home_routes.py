@@ -13,21 +13,9 @@ home = Blueprint("home", __name__)
 @home.route("/")
 def index():
     try:
-        # ✅ المطابخ المميزة (فقط المفتوحة والموافقة)
-        featured_kitchens = Kitchen.query.filter(
-            Kitchen.featured == 1,
-            Kitchen.is_open == 1,
-            Kitchen.status == "approved"
-        ).all()
-
-        # ✅ جميع الأطباق (فقط الموافقة + المتوفرة + المطابخ المفتوحة)
-        meals = Meal.query.join(Kitchen).filter(
-            Meal.status == "approved",
-            Meal.is_available == 1,
-            Kitchen.is_open == 1,
-            Kitchen.status == "approved"
-        ).all()
-
+        # مؤقتًا: عرض كل المطابخ وكل الأكلات بدون فلترة
+        featured_kitchens = Kitchen.query.all()
+        meals = Meal.query.all()
     except Exception as e:
         return f"Database Error: {e}"
 
@@ -49,7 +37,6 @@ def approve_chef(user_id):
     user.status = "approved"
     db.session.commit()
 
-    # إرسال إيميل للطاهية
     if user.email:
         msg = Message(
             subject="تمت الموافقة على حسابك في BaytiCook",
@@ -77,7 +64,6 @@ def reject_chef(user_id):
     user.status = "rejected"
     db.session.commit()
 
-    # إرسال إيميل للطاهية
     if user.email:
         msg = Message(
             subject="تم رفض حسابك في BaytiCook",
@@ -101,18 +87,22 @@ def reject_chef(user_id):
 # =============================
 @home.route("/all-kitchens")
 def all_kitchens():
-    try:
-        kitchens = Kitchen.query.filter(
-            Kitchen.is_open == 1,
-            Kitchen.status == "approved"
-        ).all()
-    except Exception as e:
-        return f"Database Error: {e}"
+    # مؤقتًا بدون فلترة عشان يظهر لك كل المطابخ
+    kitchens = Kitchen.query.all()
 
     cart_count = len(session.get("cart", {}))
+    return render_template("main/all_kitchens.html", kitchens=kitchens, cart_count=cart_count)
 
-    return render_template(
-        "main/all_kitchens.html",
-        kitchens=kitchens,
-        cart_count=cart_count
-    )
+
+
+# =============================
+# صفحة المطبخ
+# =============================
+@home.route("/kitchen/<int:id>")
+def kitchen_detail(id):
+    kitchen = Kitchen.query.get_or_404(id)
+
+    # مؤقتًا بدون فلترة عشان يظهر لك كل الأطباق
+    meals = Meal.query.filter_by(kitchen_id=id).all()
+
+    return render_template("main/kitchen_page.html", kitchen=kitchen, meals=meals)

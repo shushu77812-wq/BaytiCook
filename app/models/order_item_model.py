@@ -16,5 +16,8 @@ class OrderItem(db.Model):
     # 🔢 الكمية
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
+    # 💰 السعر وقت الطلب
+    price = db.Column(db.Float, nullable=False)
+
     def __repr__(self):
-        return f"<OrderItem order={self.order_id} meal={self.meal_id} qty={self.quantity}>"
+        return f"<OrderItem order={self.order_id} meal={self.meal_id} qty={self.quantity} price={self.price}>"
