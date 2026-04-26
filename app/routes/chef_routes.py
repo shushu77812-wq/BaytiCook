@@ -237,6 +237,7 @@ def view_meal(meal_id):
     images = MealImage.query.filter_by(meal_id=meal.id).all()
 
     return render_template("chef/view_meal.html", meal=meal, images=images)
+
 @chef.route("/meals/delete/<int:meal_id>")
 def delete_meal(meal_id):
     user_id = session.get("user_id")
