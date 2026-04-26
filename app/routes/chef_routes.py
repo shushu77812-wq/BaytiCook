@@ -237,7 +237,29 @@ def view_meal(meal_id):
     images = MealImage.query.filter_by(meal_id=meal.id).all()
 
     return render_template("chef/view_meal.html", meal=meal, images=images)
+ @chef.route("/meals/delete/<int:meal_id>")
+def delete_meal(meal_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("auth.login"))
 
+    meal = Meal.query.get_or_404(meal_id)
+
+    # حذف الصور المرتبطة بالطبق من السيرفر وقاعدة البيانات
+    for img in meal.images:
+        try:
+            os.remove(os.path.join(UPLOAD_FOLDER, img.image))
+        except:
+            pass
+        db.session.delete(img)
+
+    # حذف الطبق نفسه
+    db.session.delete(meal)
+    db.session.commit()
+
+    flash("✅ تم حذف الطبق بنجاح", "success")
+    return redirect(url_for("chef.meals"))
+ 
 # تسجيل الخروج
 @chef.route("/logout")
 def logout():
