@@ -63,10 +63,14 @@ def create_kitchen():
         kitchen_name = request.form.get("kitchen_name")
         kitchen_logo_file = request.files.get("kitchen_logo")  
         description = request.form.get("description")
-
         location = request.form.get("location")
         address = request.form.get("address")
-        
+
+        # الحقول الجديدة
+        chef_name = request.form.get("chef_name")
+        chef_phone = request.form.get("chef_phone")
+        bank_account_number = request.form.get("bank_account_number")
+
         logo_filename = None
         if kitchen_logo_file and kitchen_logo_file.filename != "" and allowed_file(kitchen_logo_file.filename):
             logo_filename = secure_filename(kitchen_logo_file.filename)
@@ -79,7 +83,13 @@ def create_kitchen():
             description=description,
             user_id=user_id,
             location=location,
-            address=address
+            address=address,
+            chef_name=chef_name,
+            chef_phone=chef_phone,
+            bank_account_number=bank_account_number,
+            status="pending",   # يبدأ كمعلق
+            featured=0,         # غير مميز افتراضياً
+            is_open=1           # مفتوح افتراضياً
         )
 
         db.session.add(new_kitchen)
@@ -90,59 +100,6 @@ def create_kitchen():
 
     return render_template("chef/create_kitchen.html", user=user)
 
-# إدارة الأطباق
-@chef.route("/meals", methods=["GET", "POST"])
-def meals():
-    user_id = session.get("user_id")
-    if not user_id:
-        return redirect(url_for("auth.login"))
-
-    user = User.query.get(user_id)
-    kitchen = Kitchen.query.filter_by(user_id=user_id).first()
-
-    if not kitchen:
-        flash("⚠️ يجب إنشاء مطبخ أولاً")
-        return redirect(url_for("chef.create_kitchen"))
-
-    if request.method == "POST":
-        name = request.form.get("name")
-        description = request.form.get("description")
-        price = float(request.form.get("price"))
-
-        new_meal = Meal(
-            name=name,
-            description=description,
-            price=price,
-            kitchen_id=kitchen.id,
-            is_available=True
-        )
-        db.session.add(new_meal)
-        db.session.commit()
-
-        images = request.files.getlist("images")
-        for img in images:
-            if img and img.filename != "" and allowed_file(img.filename):
-                filename = secure_filename(img.filename)
-                save_path = os.path.join(UPLOAD_FOLDER, filename)
-                img.save(save_path)
-
-                meal_img = MealImage(image=filename, meal_id=new_meal.id)
-                db.session.add(meal_img)
-
-        db.session.commit()
-        flash("✅ تم إضافة الطبق بنجاح")
-        return redirect(url_for("chef.meals"))
-
-    query = request.args.get("q")
-    if query:
-        meals = Meal.query.filter(
-            Meal.kitchen_id == kitchen.id,
-            or_(Meal.name.contains(query), Meal.description.contains(query))
-        ).all()
-    else:
-        meals = Meal.query.filter_by(kitchen_id=kitchen.id).all()
-
-    return render_template("chef/meals.html", meals=meals, user=user)
 
 # تعديل طبق
 @chef.route("/meals/edit/<int:meal_id>", methods=["GET", "POST"])
