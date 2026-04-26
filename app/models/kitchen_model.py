@@ -10,6 +10,10 @@ class Kitchen(db.Model):
     bank_account_name = db.Column(db.String(150))
     bank_account_number = db.Column(db.String(100))
 
+    # الحقول الجديدة
+    chef_name = db.Column(db.String(150))   # اسم الطاهية
+    chef_phone = db.Column(db.String(50))   # رقم الطاهية
+
     # حالة المطبخ: pending / approved / rejected
     status = db.Column(db.String(20), default="pending")
 
