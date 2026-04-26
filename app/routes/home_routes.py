@@ -13,9 +13,19 @@ home = Blueprint("home", __name__)
 @home.route("/")
 def index():
     try:
-        # مؤقتًا: عرض كل المطابخ وكل الأكلات بدون فلترة
-        featured_kitchens = Kitchen.query.all()
-        meals = Meal.query.all()
+        # عرض المطابخ المميزة فقط
+        featured_kitchens = Kitchen.query.filter(
+            Kitchen.featured == 1,
+            Kitchen.status == "approved",
+            Kitchen.is_open == 1
+        ).all()
+
+        # عرض الأطباق المعتمدة فقط
+        meals = Meal.query.filter(
+            Meal.status == "approved",
+            Meal.is_available == 1
+        ).all()
+
     except Exception as e:
         return f"Database Error: {e}"
 
@@ -87,12 +97,13 @@ def reject_chef(user_id):
 # =============================
 @home.route("/all-kitchens")
 def all_kitchens():
-    # مؤقتًا بدون فلترة عشان يظهر لك كل المطابخ
-    kitchens = Kitchen.query.all()
+    kitchens = Kitchen.query.filter(
+        Kitchen.status == "approved",
+        Kitchen.is_open == 1
+    ).all()
 
     cart_count = len(session.get("cart", {}))
     return render_template("main/all_kitchens.html", kitchens=kitchens, cart_count=cart_count)
-
 
 
 # =============================
