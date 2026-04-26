@@ -60,46 +60,49 @@ def create_kitchen():
     user = User.query.get(user_id)
 
     if request.method == "POST":
-        kitchen_name = request.form.get("kitchen_name")
-        kitchen_logo_file = request.files.get("kitchen_logo")  
-        description = request.form.get("description")
-        location = request.form.get("location")
-        address = request.form.get("address")
+        try:
+            kitchen_name = request.form.get("kitchen_name")
+            kitchen_logo_file = request.files.get("kitchen_logo")  
+            description = request.form.get("description")
+            location = request.form.get("location")
+            address = request.form.get("address")
 
-        # الحقول الجديدة
-        chef_name = request.form.get("chef_name")
-        chef_phone = request.form.get("chef_phone")
-        bank_account_number = request.form.get("bank_account_number")
+            chef_name = request.form.get("chef_name")
+            chef_phone = request.form.get("chef_phone")
+            bank_account_number = request.form.get("bank_account_number")
 
-        logo_filename = None
-        if kitchen_logo_file and kitchen_logo_file.filename != "" and allowed_file(kitchen_logo_file.filename):
-            logo_filename = secure_filename(kitchen_logo_file.filename)
-            save_path = os.path.join(UPLOAD_FOLDER, logo_filename)
-            kitchen_logo_file.save(save_path)
+            logo_filename = None
+            if kitchen_logo_file and kitchen_logo_file.filename != "" and allowed_file(kitchen_logo_file.filename):
+                logo_filename = secure_filename(kitchen_logo_file.filename)
+                save_path = os.path.join(UPLOAD_FOLDER, logo_filename)
+                kitchen_logo_file.save(save_path)
 
-        new_kitchen = Kitchen(
-            kitchen_name=kitchen_name,
-            kitchen_logo=logo_filename,             
-            description=description,
-            user_id=user_id,
-            location=location,
-            address=address,
-            chef_name=chef_name,
-            chef_phone=chef_phone,
-            bank_account_number=bank_account_number,
-            status="pending",   # يبدأ كمعلق
-            featured=0,         # غير مميز افتراضياً
-            is_open=1           # مفتوح افتراضياً
-        )
+            new_kitchen = Kitchen(
+                kitchen_name=kitchen_name,
+                kitchen_logo=logo_filename,             
+                description=description,
+                user_id=user_id,
+                location=location,
+                address=address,
+                chef_name=chef_name,
+                chef_phone=chef_phone,
+                bank_account_number=bank_account_number,
+                status="pending",
+                featured=0,
+                is_open=1
+            )
 
-        db.session.add(new_kitchen)
-        db.session.commit()
+            db.session.add(new_kitchen)
+            db.session.commit()
 
-        flash("✅ تم إنشاء المطبخ بنجاح")
-        return redirect(url_for("chef.dashboard"))
+            flash("✅ تم إنشاء المطبخ بنجاح")
+            return redirect(url_for("chef.dashboard"))
+
+        except Exception as e:
+            print("❌ خطأ أثناء إنشاء المطبخ:", e)  # يطبع الخطأ الحقيقي في التيرمنال
+            return "Internal Server Error", 500
 
     return render_template("chef/create_kitchen.html", user=user)
-
 
 # تعديل طبق
 @chef.route("/meals/edit/<int:meal_id>", methods=["GET", "POST"])
