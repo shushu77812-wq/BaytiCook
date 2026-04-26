@@ -46,8 +46,7 @@ def approve_chef(id):
     chef = User.query.get_or_404(id)
     chef.status = "approved"
     db.session.commit()
-    send_approval_email(chef)
-    flash("✅ تمت الموافقة على الطاهية وإرسال إشعار لها.", "success")
+    flash("✅ تمت الموافقة على الطاهية.", "success")
     return redirect(url_for("admin.admin_chefs"))
 
 # رفض الطاهية
