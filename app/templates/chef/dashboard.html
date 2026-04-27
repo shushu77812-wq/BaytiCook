@@ -55,14 +55,6 @@
     </div>
     {% endif %}
 
-    <!-- تنبيه الطلبات -->
-    {% if new_orders > 0 %}
-    <div class="alert">
-      <i class="fa fa-bell"></i> 🔔 لديك {{ new_orders }} طلب جديد
-      <a href="/orders" style="margin-right:10px; color:#856404;">عرض الطلبات</a>
-    </div>
-    {% endif %}
-
     <!-- الاحصائيات -->
     <div class="stats">
       <div class="stat-card" style="background:#d4edda;">
@@ -74,12 +66,16 @@
         <p>{{ orders_count }}</p>
       </div>
       <div class="stat-card" style="background:#fff3cd;">
+        <h3>طلبات معلقة</h3>
+        <p>{{ pending_count }}</p>
+      </div>
+      <div class="stat-card" style="background:#fff3cd;">
         <h3>قيد التحضير</h3>
         <p>{{ preparing_count }}</p>
       </div>
       <div class="stat-card" style="background:#e2e3e5;">
-        <h3>الطلبات المكتملة</h3>
-        <p>{{ completed_count }}</p>
+        <h3>الطلبات المسلّمة</h3>
+        <p>{{ delivered_count }}</p>
       </div>
       <div class="stat-card" style="background:#f8d7da;">
         <h3>الطلبات الملغاة</h3>
