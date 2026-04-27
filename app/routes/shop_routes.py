@@ -152,25 +152,32 @@ def create_order():
         return f"❌ خطأ أثناء تأكيد الطلب: {e}"
 
 # =============================
-# صفحة الدفع
-# =============================
-@shop.route("/checkout/<int:order_id>", methods=["GET", "POST"])
-def checkout(order_id):
-    order = Order.query.get_or_404(order_id)
+# صفحة الدفع============
+@shop.route("/checkout", methods=["GET", "POST"])
+def checkout():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("auth.login"))
+
+    # جيب كل الطلبات للمستخدم
+    orders = Order.query.filter_by(user_id=user_id).all()
 
     if request.method == "POST":
+        order_id = request.form.get("order_id")
         payment_method = request.form.get("payment_method")
+        order = Order.query.get_or_404(order_id)
 
-        if payment_method == "cod":  # الدفع عند الاستلام
+        if payment_method == "cod":
             order.status = "مؤكد"
-        elif payment_method == "bank":  # تحويل بنكي
+        elif payment_method == "bank":
             order.status = "بانتظار الدفع"
-        db.session.commit()
 
+        db.session.commit()
         return redirect(url_for("shop.my_orders"))
 
-    return render_template("main/checkout.html", order=order)
+    return render_template("main/checkout.html", orders=orders)
 
+# =================
 # =============================
 # صفحة متابعة الطلبات
 # =============================

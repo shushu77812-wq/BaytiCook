@@ -42,6 +42,7 @@ def dashboard():
     return render_template(
         "chef/dashboard.html",
         user=user,
+        kitchen=kitchen,   # ✅ أرسلنا kitchen للـ template
         meals_count=meals_count,
         orders_count=orders_count,
         preparing_count=preparing_count,
@@ -227,3 +228,54 @@ def logout():
     session.clear()
     flash("🚪 تم تسجيل الخروج بنجاح")
     return redirect(url_for("auth.login"))
+
+# عرض قائمة الأطباق
+# إدارة الأطباق
+@chef.route("/meals", methods=["GET", "POST"])
+def meals():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("auth.login"))
+
+    user = User.query.get(user_id)
+    kitchen = Kitchen.query.filter_by(user_id=user_id).first()
+
+    if not kitchen:
+        flash("⚠️ يجب إنشاء مطبخ أولاً")
+        return redirect(url_for("chef.create_kitchen"))
+
+    # بحث عن طبق
+    query = request.args.get("q")
+    if query:
+        meals = Meal.query.filter(
+            Meal.kitchen_id == kitchen.id,
+            or_(Meal.name.contains(query), Meal.description.contains(query))
+        ).all()
+    else:
+        meals = Meal.query.filter_by(kitchen_id=kitchen.id).all()
+
+    # إضافة طبق جديد
+    if request.method == "POST":
+        name = request.form.get("name")
+        description = request.form.get("description")
+        price = float(request.form.get("price"))
+        images = request.files.getlist("images")
+
+        new_meal = Meal(name=name, description=description, price=price, kitchen_id=kitchen.id, is_available=True)
+        db.session.add(new_meal)
+        db.session.commit()
+
+        for img in images:
+            if img and img.filename != "" and allowed_file(img.filename):
+                filename = secure_filename(img.filename)
+                save_path = os.path.join(UPLOAD_FOLDER, filename)
+                img.save(save_path)
+
+                new_img = MealImage(image=filename, meal_id=new_meal.id)
+                db.session.add(new_img)
+
+        db.session.commit()
+        flash("✅ تم إضافة الطبق بنجاح")
+        return redirect(url_for("chef.meals"))
+
+    return render_template("chef/meals.html", user=user, kitchen=kitchen, meals=meals)

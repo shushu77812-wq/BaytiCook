@@ -13,18 +13,15 @@ home = Blueprint("home", __name__)
 @home.route("/")
 def index():
     try:
-        # عرض المطابخ المميزة فقط
+        # فقط المطابخ المميزة
         featured_kitchens = Kitchen.query.filter(
             Kitchen.featured == 1,
             Kitchen.status == "approved",
             Kitchen.is_open == 1
         ).all()
 
-        # عرض الأطباق المعتمدة فقط
-        meals = Meal.query.filter(
-            Meal.status == "approved",
-            Meal.is_available == 1
-        ).all()
+        # جميع الأكلات
+        meals = Meal.query.all()
 
     except Exception as e:
         return f"Database Error: {e}"
@@ -37,6 +34,34 @@ def index():
         featured_kitchens=featured_kitchens,
         cart_count=cart_count
     )
+
+# =============================
+# البحث عن وجبات أو مطابخ
+# =============================
+@home.route("/search")
+def search():
+    query = request.args.get("q", "").strip()
+
+    meals = []
+    kitchens = []
+
+    if query:
+        # البحث في الأكلات
+        meals = Meal.query.filter(Meal.name.contains(query)).all()
+
+        # البحث في المطابخ
+        kitchens = Kitchen.query.filter(Kitchen.kitchen_name.contains(query)).all()
+
+    cart_count = len(session.get("cart", {}))
+
+    return render_template(
+        "main/search.html",
+        query=query,
+        meals=meals,
+        kitchens=kitchens,
+        cart_count=cart_count
+    )
+
 
 # =============================
 # موافقة الطاهية من الرئيسية
@@ -104,7 +129,6 @@ def all_kitchens():
 
     cart_count = len(session.get("cart", {}))
     return render_template("main/all_kitchens.html", kitchens=kitchens, cart_count=cart_count)
-
 
 # =============================
 # صفحة المطبخ

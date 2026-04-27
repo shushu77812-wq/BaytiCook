@@ -37,50 +37,57 @@ button:hover { background:#218838; }
 </head>
 <body>
 
-<h2>💳 الدفع للطلب رقم {{ order.id }}</h2>
+<h2>💳 الدفع للطلبات</h2>
 
-<div class="kitchen-box">
-    <!-- اسم المطبخ -->
-    <h3>🍳 {{ order.kitchen.kitchen_name }}</h3>
+{% if orders %}
+  {% for order in orders %}
+  <div class="kitchen-box">
+      <!-- اسم المطبخ -->
+      <h3>🍳 {{ order.kitchen.kitchen_name }} (طلب رقم {{ order.id }})</h3>
 
-    <!-- بيانات الأطباق -->
-    {% for item in order.items %}
-    <div class="item">
-        <p>🍽 {{ item.meal.name }}</p>
-        <p>الكمية: {{ item.quantity }}</p>
-        <p>السعر للوحدة: {{ item.price }} ريال</p>
-        <p>الإجمالي: {{ item.price * item.quantity }} ريال</p>
-    </div>
-    {% endfor %}
+      <!-- بيانات الأطباق -->
+      {% for item in order.items %}
+      <div class="item">
+          <p>🍽 {{ item.meal.name }}</p>
+          <p>الكمية: {{ item.quantity }}</p>
+          <p>السعر للوحدة: {{ item.price }} ريال</p>
+          <p>الإجمالي: {{ item.price * item.quantity }} ريال</p>
+      </div>
+      {% endfor %}
 
-    <hr>
+      <hr>
 
-    <!-- بيانات الطاهية -->
-    <h4>👩‍🍳 بيانات الطاهية</h4>
-    <p>📍 الموقع: {{ order.kitchen.location }}</p>
-    <p>🏠 العنوان: {{ order.kitchen.address }}</p>
+      <!-- بيانات الطاهية -->
+      <h4>👩‍🍳 بيانات الطاهية</h4>
+      <p>📍 الموقع: {{ order.kitchen.location }}</p>
+      <p>🏠 العنوان: {{ order.kitchen.address }}</p>
+      <p>💳 الحساب البنكي: {{ order.kitchen.bank_account_number }}</p>
 
-    <hr>
+      <hr>
 
-    <!-- اختيار طريقة الدفع -->
-    <form method="POST" enctype="multipart/form-data">
-        <label>طريقة الدفع:</label>
-        <select name="payment_method" required>
-            <option value="bank">🏦 تحويل بنكي</option>
-            <option value="cod">💵 عند الاستلام</option>
-        </select>
+      <!-- اختيار طريقة الدفع -->
+      <form method="POST" enctype="multipart/form-data" action="{{ url_for('shop.checkout', order_id=order.id) }}">
+          <input type="hidden" name="order_id" value="{{ order.id }}">
+          <label>طريقة الدفع:</label>
+          <select name="payment_method" required>
+              <option value="bank">🏦 تحويل بنكي</option>
+              <option value="cod">💵 عند الاستلام</option>
+          </select>
 
-        <!-- بيانات التحويل البنكي -->
-        <div>
-            <p>💳 الحساب البنكي: {{ order.kitchen.bank_account_number }}</p>
-            <label>رفع إيصال التحويل:</label>
-            <input type="file" name="proof" accept="image/*">
-        </div>
+          <!-- بيانات التحويل البنكي -->
+          <div>
+              <label>رفع إيصال التحويل:</label>
+              <input type="file" name="proof" accept="image/*">
+          </div>
 
-        <!-- زر تأكيد -->
-        <button type="submit">✅ تأكيد الدفع</button>
-    </form>
-</div>
+          <!-- زر تأكيد -->
+          <button type="submit">✅ تأكيد الدفع</button>
+      </form>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty">لا توجد طلبات حالياً</div>
+{% endif %}
 
 </body>
 </html>

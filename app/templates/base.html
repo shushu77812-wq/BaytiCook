@@ -92,6 +92,14 @@
     .meal-card:hover {
       transform: translateY(-5px);
     }
+    .search-input {
+  flex: 1;              /* يخلي الحقل يتمدد وياخذ كل العرض */
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
   </style>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -124,10 +132,12 @@
       <div class="search-logo">
         <img src="{{ url_for('static', filename='images/byatecook.jpeg') }}" alt="Logo">
       </div>
-      <form method="GET" action="/search" class="search-box">
-        <button type="submit">بحث</button>
-        <input type="text" name="q" placeholder="ابحث عن طبق أو مطبخ">
-      </form>
+      <form action="{{ url_for('home.search') }}" method="get" style="display:flex; gap:5px; width:100%;">
+  <input type="text" name="q" placeholder="ابحث..." class="search-input">
+  <button type="submit" class="nav-link">🔍 بحث</button>
+</form>
+
+
     </div>
   </div>
 </section>
